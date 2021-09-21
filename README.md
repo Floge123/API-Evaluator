@@ -1,4 +1,4 @@
-# API Concepts Framework
+# API Concepts Framework (WIP)
  API Concepts Framework in C# for analysing .NET-Assemblies
 
 This is a program written in C# that can be used to evaluate .NET-Assemblies regarding the useablity of the API.
