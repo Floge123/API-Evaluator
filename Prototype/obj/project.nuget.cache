@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "tdFrNDmvZQYcwC/hBy88hBk4JNDvXCHGK/cFgBD4HJvz6BJKgjJu/h+GeT0AuaeOUCHqq3EwS6B8jJqwJTztAA==",
+  "success": true,
+  "projectFilePath": "D:\\Bibliothek\\Dokumente\\FH\\BA\\API-Concepts-Framework\\Prototype\\Prototype.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
