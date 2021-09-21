@@ -5,7 +5,7 @@ This is a program written in C# that can be used to evaluate .NET-Assemblies reg
 This program will be developed during the work on my Bachelor-Thesis at the FH Hagenberg (Austria).
 
 # General Idea
-![Pipeline](../Evaluation_Pipeline.PNG)
+![Pipeline](Documentation/Evaluation_Pipeline.PNG)
 
 The User gets to specify the .NET-Assembly to analyse, which will then be loaded into memory using the `System.Reflection.Assembly` Type.
 The program runs through multiple `Evaluators`, which analyse the Assembly on a specific Criteria (i.e. ParameterCount of Class-Methods).
