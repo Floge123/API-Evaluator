@@ -13,8 +13,8 @@ namespace Prototype
         private Dictionary<Criteria, List<ProblemReport>> problems;
         private Dictionary<Criteria, int> scores;
 
-        private FlagsAndScores flagsAndScores;
-        public MethodEvaluator(FlagsAndScores flagsAndScores) {
+        private Dictionary<string, int> flagsAndScores;
+        public MethodEvaluator(Dictionary<string, int> flagsAndScores) {
             this.flagsAndScores = flagsAndScores;
         }
 
@@ -30,41 +30,45 @@ namespace Prototype
 
         private void EvaluateParameterCount()
         {
-            foreach(Type type in assemblyTypes)
-            {
-                foreach (MethodInfo methodInfo in type.GetMethods())
+            try { 
+                foreach(Type type in assemblyTypes)
                 {
-                    int paramCount = methodInfo.GetParameters().Length;
-                    if (paramCount > flagsAndScores.ParameterCount_Flag_Ok)
+                    foreach (MethodInfo methodInfo in type.GetMethods())
                     {
-                        var pr = new ProblemReport(
-                            type.Name, methodInfo.ToString(),
-                            "Number of Parameters wayyyy too large! Has {" + paramCount + "}.",
-                            Criteria.ParameterCount, Extent.small, Extent.medium, "Why even try?"
-                        );
+                        int paramCount = methodInfo.GetParameters().Length;
+                        if (paramCount > flagsAndScores["parameterCount_flag_ok"])
+                        {
+                            var pr = new ProblemReport(
+                                type.Name, methodInfo.ToString(),
+                                "Number of Parameters wayyyy too large! Has {" + paramCount + "}.",
+                                Criteria.ParameterCount, Extent.small, Extent.medium, "Why even try?"
+                            );
 
-                        Utils.UpdateDictionaries(
-                            problems, scores, Criteria.ParameterCount,
-                            pr, flagsAndScores.ParameterCount_Score_Bad
-                        );                        
-                    } 
-                    else if (paramCount > flagsAndScores.ParameterCount_Flag_Good)
-                    {
-                        var pr = new ProblemReport(
-                            type.Name, methodInfo.ToString(),
-                            "Number of Parameters too large! Has {" + paramCount + "}.",
-                            Criteria.ParameterCount, Extent.small, Extent.medium, "Try being better!"
-                        );
+                            Utils.UpdateDictionaries(
+                                problems, scores, Criteria.ParameterCount,
+                                pr, flagsAndScores["parameterCount_score_bad"]
+                            );
+                        }
+                        else if (paramCount > flagsAndScores["parameterCount_flag_good"])
+                        {
+                            var pr = new ProblemReport(
+                                type.Name, methodInfo.ToString(),
+                                "Number of Parameters too large! Has {" + paramCount + "}.",
+                                Criteria.ParameterCount, Extent.small, Extent.medium, "Try being better!"
+                            );
 
-                        Utils.UpdateDictionaries(
-                            problems, scores, Criteria.ParameterCount,
-                            pr, flagsAndScores.ParameterCount_Score_Ok
-                        );
+                            Utils.UpdateDictionaries(
+                                problems, scores, Criteria.ParameterCount,
+                                pr, flagsAndScores["parameterCount_score_ok"]
+                            );
+                        }
                     }
                 }
             }
+            catch (KeyNotFoundException ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message} Skipping this criteria.");
+            }
         }
-
-        
     }
 }

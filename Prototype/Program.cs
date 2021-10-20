@@ -10,7 +10,7 @@ namespace Prototype
     {
         private static void EvaluateAssembly(Assembly assembly, Dictionary<Criteria, List<ProblemReport>> problems, Dictionary<Criteria, int> scores)
         {
-            var fas = JsonConvert.DeserializeObject<FlagsAndScores>(File.ReadAllText("FlagsAndScores.json"));
+            var fas = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText("FlagsAndScores.json"));
 
             List<IEvaluator> evaluatorList = new()
             {
