@@ -4,21 +4,21 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Prototype.ExtendMethods;
+using Prototype.Criteria;
 
 namespace Prototype
 {
     class MethodEvaluator : IEvaluator
     {
         private Type[] assemblyTypes;
-        private Dictionary<Criteria, List<ProblemReport>> problems;
-        private Dictionary<Criteria, int> scores;
-
-        private Dictionary<string, int> flagsAndScores;
-        public MethodEvaluator(Dictionary<string, int> flagsAndScores) {
-            this.flagsAndScores = flagsAndScores;
-        }
-
-        public void Evaluate(Assembly assembly, Dictionary<Criteria, List<ProblemReport>> problems, Dictionary<Criteria, int> scores)
+        private Dictionary<string, ICollection<ProblemReport>> problems;
+        private Dictionary<string, double> scores;
+        //criteria
+        public void Evaluate(
+            Assembly assembly,
+            Dictionary<string, ICollection<ProblemReport>> problems,
+            Dictionary<string, double> scores)
         {
             //only Types are used here, so we don't have to save the whole assembly
             this.assemblyTypes = assembly.GetTypes();
@@ -30,45 +30,23 @@ namespace Prototype
 
         private void EvaluateParameterCount()
         {
-            try { 
-                foreach(Type type in assemblyTypes)
+            int count = 0;
+            foreach(Type type in assemblyTypes)
+            {
+                foreach (MethodInfo methodInfo in type.GetMethods())
                 {
-                    foreach (MethodInfo methodInfo in type.GetMethods())
-                    {
-                        int paramCount = methodInfo.GetParameters().Length;
-                        if (paramCount > flagsAndScores["parameterCount_flag_ok"])
-                        {
-                            var pr = new ProblemReport(
-                                type.Name, methodInfo.ToString(),
-                                "Number of Parameters wayyyy too large! Has {" + paramCount + "}.",
-                                Criteria.ParameterCount, Extent.small, Extent.medium, "Why even try?"
-                            );
-
-                            Utils.UpdateDictionaries(
-                                problems, scores, Criteria.ParameterCount,
-                                pr, flagsAndScores["parameterCount_score_bad"]
-                            );
-                        }
-                        else if (paramCount > flagsAndScores["parameterCount_flag_good"])
-                        {
-                            var pr = new ProblemReport(
-                                type.Name, methodInfo.ToString(),
-                                "Number of Parameters too large! Has {" + paramCount + "}.",
-                                Criteria.ParameterCount, Extent.small, Extent.medium, "Try being better!"
-                            );
-
-                            Utils.UpdateDictionaries(
-                                problems, scores, Criteria.ParameterCount,
-                                pr, flagsAndScores["parameterCount_score_ok"]
-                            );
-                        }
-                    }
+                    //only work with public methods
+                    if (methodInfo.IsPrivate) continue;
+                    //delegate to criteria
+                    count++;
+                    ICriteria criteria = new ParamCountCriteria(type, methodInfo);
+                    scores.AddOrCreate(ParamCountCriteria.Name, criteria.CalculateScore());
+                    problems.AddOrCreate(ParamCountCriteria.Name, criteria.GenerateProblemReport());
                 }
             }
-            catch (KeyNotFoundException ex)
-            {
-                Console.WriteLine($"ERROR: {ex.Message} Skipping this criteria.");
-            }
+            if (scores.ContainsKey(ParamCountCriteria.Name)) 
+                scores[ParamCountCriteria.Name] /= count;
+
         }
     }
 }

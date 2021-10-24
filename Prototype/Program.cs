@@ -3,18 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
+using Prototype.ExtendMethods;
 
 namespace Prototype
 {
     class Program
     {
-        private static void EvaluateAssembly(Assembly assembly, Dictionary<Criteria, List<ProblemReport>> problems, Dictionary<Criteria, int> scores)
+        public static string Indent(int count)
         {
-            var fas = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText("FlagsAndScores.json"));
+            return "".PadLeft(count);
+        }
 
+        private static void EvaluateAssembly(
+            Assembly assembly,
+            Dictionary<string, ICollection<ProblemReport>> problems,
+            Dictionary<string, double> scores)
+        {
             List<IEvaluator> evaluatorList = new()
             {
-                new MethodEvaluator(fas)
+                new MethodEvaluator()
                 //add all Evaluator here
             };
 
@@ -25,27 +32,17 @@ namespace Prototype
             }
         }
 
-        private static void PrintProblems(Dictionary<Criteria, List<ProblemReport>> problems)
-        {
-            foreach (var entry in problems)
-            {
-                Console.WriteLine(entry.Key + " {");
-                foreach (var problem in entry.Value)
-                {
-                    Console.WriteLine(problem);
-                }
-                Console.WriteLine("}");
-            }
-        }
-
         static void Main(string[] args)
         {
-            Assembly assembly = Assembly.LoadFrom("Prototype.dll");
-            var problems = new Dictionary<Criteria, List<ProblemReport>>();
-            var scores = new Dictionary<Criteria, int>();
+            Assembly assembly = Assembly.LoadFrom("TestingAssemblies/Newtonsoft.Json.dll");
+            var problems = new Dictionary<string, ICollection<ProblemReport>>();
+            var scores = new Dictionary<string, double>();
 
             EvaluateAssembly(assembly, problems, scores);
-            PrintProblems(problems);
+
+            File.WriteAllText("problems.json", JsonConvert.SerializeObject(problems));
+            File.WriteAllText("scores.json", JsonConvert.SerializeObject(scores));
+
         }
     }
 }

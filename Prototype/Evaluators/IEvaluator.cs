@@ -10,6 +10,10 @@ namespace Prototype
     //The Interface an Evaluator has to implement, so that the main program can run it in its evaluation-pipeline
     interface IEvaluator
     {
-        public void Evaluate(Assembly assembly, Dictionary<Criteria, List<ProblemReport>> problems, Dictionary<Criteria, int> score);
+        public void Evaluate(
+            Assembly assembly,
+            Dictionary<string, ICollection<ProblemReport>> problems,
+            Dictionary<string, double> score
+        );
     }
 }
