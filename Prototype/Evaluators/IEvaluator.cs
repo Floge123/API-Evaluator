@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Prototype
+namespace Prototype.Evaluators
 {
     //The Interface an Evaluator has to implement, so that the main program can run it in its evaluation-pipeline
-    interface IEvaluator
+    public interface IEvaluator
     {
         public void Evaluate(
             Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
-            Dictionary<string, double> score
+            Dictionary<string, double> complexities
         );
     }
 }

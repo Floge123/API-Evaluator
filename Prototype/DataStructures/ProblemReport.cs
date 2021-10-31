@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Prototype
+﻿namespace Prototype
 {
-    class ProblemReport
+    public class ProblemReport
     {
         public string Type { get; set; }
         public string Location { get; set; }
         public string Problem { get; set; }
         public string Criteria { get; set; }
-        public Extent Significance { get; set; }
         public string Solution { get; set; }
 
         public ProblemReport(string type, string location, string problem, 

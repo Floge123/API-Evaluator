@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Prototype.Criteria
+{
+    /// <summary>
+    /// This criteria is relevant, when the user has to search for a specific member.
+    /// This happens, when the user doesn't know the name of the member or has to guess the right name.
+    /// An IDE should display all methods and the user can scroll through them, this criteria measures the complexity
+    /// of this search.
+    /// </summary>
+    public class MemberCountCriteria : ICriteria
+    {
+        /// <summary>
+        /// According to the rule of 30, a Type should have no more than 30 members on average.
+        /// </summary>
+        private const int FLAG_OK = 30;
+
+        private Type type;
+        private int memberCount;
+
+        public static string Name { get { return "Complexity of Member Count"; } }
+        public MemberCountCriteria(Type type)
+        {
+            this.type = type;
+            this.memberCount = type.GetMembers().Length;
+        }
+
+        /// <summary>
+        /// In 1/3 of the cases, this criteria is relevant, so that the user has to search for members.
+        /// With every member, the complexity of this search increases by 1/6.
+        /// </summary>
+        /// <returns>complexity of the member count</returns>
+        public double CalculateComplexity()
+        {
+            return memberCount * (1.0 / 3.0) * (1.0 / 6.0);
+        }
+
+        public ICollection<ProblemReport> GenerateProblemReports()
+        {
+            ICollection<ProblemReport> problemReports = new List<ProblemReport>();
+            if (memberCount > FLAG_OK)
+            {
+                problemReports.Add(new ProblemReport(
+                    type.Name, "",
+                    $"Type has more than {FLAG_OK} members. Has {memberCount}.",
+                    Name, "Reduce number of public members. Too many choices are" +
+                    "overwhelming, when looking for correct member."
+                ));
+            }
+            return problemReports;
+        }
+    }
+}

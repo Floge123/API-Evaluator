@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Prototype.Criteria
 {
-    interface ICriteria
+    public interface ICriteria
     {
-        static string Name { get; }
-        public double CalculateScore();
-        public ProblemReport GenerateProblemReport();
+        public static string Name { get; }
+        public double CalculateComplexity();
+        public ICollection<ProblemReport> GenerateProblemReports();
     }
 }
