@@ -11,11 +11,11 @@
         public ProblemReport(string type, string location, string problem, 
                              string criteria, string solution)
         {
-            this.Type = type;
-            this.Location = location;
-            this.Problem = problem;
-            this.Criteria = criteria;
-            this.Solution = solution;
+            Type = type;
+            Location = location;
+            Problem = problem;
+            Criteria = criteria;
+            Solution = solution;
         }
 
         public override string ToString()

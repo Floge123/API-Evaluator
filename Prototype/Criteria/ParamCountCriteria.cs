@@ -14,15 +14,15 @@ namespace Prototype.Criteria
         /// <summary>
         /// A method with more than 4 parameters is considered a problem.
         /// </summary>
-        private const int FLAG_OK = 4;
-        private Dictionary<string, int> paramCounts = new();
-        private Type typeInfo;   
+        private const int FlagOk = 4;
+        private readonly Dictionary<string, int> paramCounts = new();
+        private readonly Type typeInfo;   
 
-        public static string Name { get { return "Complexity of Method Parameter Counts"; } }
+        public static string Name => "Complexity of Method Parameter Counts";
 
-        public ParamCountCriteria(Type typeinfo)
+        public ParamCountCriteria(Type typeInfo)
         {
-            this.typeInfo = typeinfo;
+            this.typeInfo = typeInfo;
             foreach (var method in typeInfo.GetMethods())
             {
                 paramCounts.CreateOrReplace(method.Name, method.GetParameters().Length);
@@ -38,7 +38,7 @@ namespace Prototype.Criteria
             double complexity = 0;
             foreach (var methods in paramCounts)
             {
-                for (int i = 1; i <= methods.Value; i++)
+                for (var i = 1; i <= methods.Value; i++)
                 {
                     complexity += 2.5 * i;
                 }
@@ -49,13 +49,13 @@ namespace Prototype.Criteria
         public ICollection<ProblemReport> GenerateProblemReports()
         {
             ICollection<ProblemReport> problemReports = new List<ProblemReport>();
-            foreach (var methods in paramCounts)
+            foreach (var (key, value) in paramCounts)
             {
-                if (methods.Value > FLAG_OK)
+                if (value > FlagOk)
                 {
                     problemReports.Add(new ProblemReport(
-                        typeInfo.Name, methods.Key,
-                        $"Method has more than {FLAG_OK} parameters. Has {methods.Value}.",
+                        typeInfo.Name, key,
+                        $"Method has more than {FlagOk} parameters. Has {value}.",
                         Name, "Reduce number of parameters or provide overload with less parameters."
                     ));
                 }

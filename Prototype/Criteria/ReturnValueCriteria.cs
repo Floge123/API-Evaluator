@@ -17,27 +17,28 @@ namespace Prototype.Criteria
         /// Studies say that complexity increases by 8 if a return value is present and used.
         /// We assume 87.5% of return values are used, therefore use complexity of 7.
         /// </summary>
-        private const int COMPLEXITY_INCREASE = 7;
-        private Type type;
+        private const int ComplexityIncrease = 7;
+        private readonly Type type;
 
-        public static string Name { get { return "Complexity of Method Return Values"; } }
+        public static string Name => "Complexity of Method Return Values";
+
         public ReturnValueCriteria(Type type)
         {
             this.type = type;
         }
 
         /// <summary>
-        /// Complexity increase by 7 for each returnvalue != null.
+        /// Complexity increase by 7 for each returnValue != null.
         /// </summary>
         /// <returns>complexity of return values</returns>
         public double CalculateComplexity()
         {
-            double complexity = 0.0;
+            var complexity = 0.0;
             foreach (var method in type.GetMethods())
             {
-                if (!method.ReturnType.Equals(typeof(void)))
+                if (method.ReturnType != typeof(void))
                 {
-                    complexity += COMPLEXITY_INCREASE;
+                    complexity += ComplexityIncrease;
                 }
             }
             return complexity;

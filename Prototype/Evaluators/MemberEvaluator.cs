@@ -17,18 +17,18 @@ namespace Prototype.Evaluators
             Dictionary<string, ICollection<ProblemReport>> problems,
             Dictionary<string, double> complexities)
         {
-            this.assemblyType = assembly.GetExportedTypes();
-            this.problems = problems;
-            this.complexities = complexities;
+            assemblyType = assembly.GetExportedTypes();
+            this.problems = problems ?? throw new ArgumentNullException(nameof(problems));
+            this.complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
 
             EvaluateMember();
         }
 
         private void EvaluateMember()
         {
-            double countComplexity = 0.0;
-            double prefixComplexity = 0.0;
-            foreach(Type type in assemblyType)
+            var countComplexity = 0.0;
+            var prefixComplexity = 0.0;
+            foreach(var type in assemblyType)
             {
                 ICriteria memberCountCriteria = new MemberCountCriteria(type);
                 ICriteria memberPrefixCriteria = new MemberPrefixCriteria(type);

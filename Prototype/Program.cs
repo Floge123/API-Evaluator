@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 using Prototype.Evaluators;
 
 namespace Prototype
@@ -28,29 +29,35 @@ namespace Prototype
             }
         }
 
-        static void Main(string[] args)
+        private static Assembly LoadAssembly(string[] consoleArgs)
         {
-            Assembly assembly;
             string filepath;
-            if (args.Length < 2)
+            if (consoleArgs.Length < 2)
             {
                 Console.WriteLine("Insert Filepath:");
                 filepath = Console.ReadLine();
-            } else
+            }
+            else
             {
-                filepath = args[0];
+                filepath = consoleArgs[0];
             }
 
             try
             {
-                assembly = Assembly.LoadFrom(filepath);
+                return Assembly.LoadFrom(filepath);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"{e.Message}");
                 Console.WriteLine("Usage: Prototype.exe /{Filepath/}");
-                assembly = Assembly.LoadFrom("TestingAssemblies/Newtonsoft.Json.dll");
+                Console.WriteLine("Using default!");
+                return Assembly.LoadFrom("TestingAssemblies/Newtonsoft.Json.dll");
             }
+        }
+
+        static void Main(string[] args)
+        {
+            Assembly assembly = LoadAssembly(args);
 
             var problems = new Dictionary<string, ICollection<ProblemReport>>();
             var complexities = new Dictionary<string, double>();

@@ -5,18 +5,19 @@ using Prototype.ExtensionMethods;
 namespace Prototype.Criteria
 {
     /// <summary>
-    /// Member Overloading is a complexity-friendly way to increase functionaliy.
+    /// Member Overloading is a complexity-friendly way to increase functionality.
     /// However, Overloading still increases complexity and is therefore evaluated.
     /// We will not, however generate problems, as lots of overloads != bad design.
-    /// /// </summary>
+    /// </summary>
     public class OverloadCriteria : ICriteria
     {
-        private const int FLAG_OK = 10;
+        private const int FlagOk = 10;
 
-        private Type type;
-        private Dictionary<string, int> overloads = new();
+        private readonly Type type;
+        private readonly Dictionary<string, int> overloads = new();
 
-        public static string Name { get { return "Complexity of Method Overloads"; } }
+        public static string Name => "Complexity of Method Overloads";
+
         public OverloadCriteria(Type type)
         {
             this.type = type;
@@ -32,12 +33,12 @@ namespace Prototype.Criteria
         /// <returns>complexity of overloads</returns>
         public double CalculateComplexity()
         {
-            double complexity = 0.0;
-            foreach (var overload in overloads)
+            var complexity = 0.0;
+            foreach (var (_, value) in overloads)
             {
-                if (overload.Value > 1)
+                if (value > 1)
                 {
-                    complexity += overload.Value;
+                    complexity += value;
                 }
             }
             return complexity;
@@ -46,13 +47,13 @@ namespace Prototype.Criteria
         public ICollection<ProblemReport> GenerateProblemReports()
         {
             ICollection<ProblemReport> problems = new List<ProblemReport>();
-            foreach (var overload in overloads)
+            foreach (var (key, value) in overloads)
             {
-                if (overload.Value > 10)
+                if (value > FlagOk)
                 {
                     problems.Add(new ProblemReport(
-                        type.Name, overload.Key,
-                        $"Method has {overload.Value} overloads.",
+                        type.Name, key,
+                        $"Method has {value} overloads.",
                         Name, "This is just for info, no fix needed.")
                     );
                 }

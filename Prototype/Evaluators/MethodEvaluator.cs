@@ -17,21 +17,20 @@ namespace Prototype.Evaluators
             Dictionary<string, ICollection<ProblemReport>> problems,
             Dictionary<string, double> complexities)
         {
-            //only Types are used here, so we don't have to save the whole assembly
-            this.assemblyTypes = assembly.GetExportedTypes();
-            this.problems = problems;
-            this.complexities = complexities;
+            assemblyTypes = assembly.GetExportedTypes();
+            this.problems = problems ?? throw new ArgumentNullException(nameof(problems));
+            this.complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
             //call all private evaluations
             EvaluateMethods();
         }
 
         private void EvaluateMethods()
         {
-            int count = 0;
-            double paramComplexity = 0.0;
-            double overloadComplexity = 0.0;
-            double returnValueComplexity = 0.0;
-            foreach(Type type in assemblyTypes)
+            var count = 0;
+            var paramComplexity = 0.0;
+            var overloadComplexity = 0.0;
+            var returnValueComplexity = 0.0;
+            foreach(var type in assemblyTypes)
             {
                 count += type.GetMethods().Length;
                 EvaluateCriteria(type, ref paramComplexity, ParamCountCriteria.Name, type => new ParamCountCriteria(type));
@@ -49,7 +48,7 @@ namespace Prototype.Evaluators
             complexities.CreateOrIncrease(ReturnValueCriteria.Name, returnValueComplexity);
         }
 
-        private void EvaluateCriteria<V>(Type type, ref double complexity, string name, Func<Type, V> ctor) where V : ICriteria
+        private void EvaluateCriteria<TV>(Type type, ref double complexity, string name, Func<Type, TV> ctor) where TV : ICriteria
         {
             ICriteria criteria = ctor.Invoke(type);
             complexity += criteria.CalculateComplexity();

@@ -9,19 +9,20 @@ namespace Prototype.Criteria
     /// When searching for a specific member, the prefix of that method should help narrow down the search.
     /// This criteria measures the amount of members with the same prefix, which in result would slow down the search
     /// for the correct member.
-    /// The prefx here is defined as the first 3 letters of the member.
+    /// The prefix here is defined as the first 3 letters of the member.
     /// </summary>
     public class MemberPrefixCriteria : ICriteria
     {
         /// <summary>
         /// A type should have no more than 10 members with the same prefix
         /// </summary>
-        private const int FLAG_OK = 10;
+        private const int FlagOk = 10;
 
-        private Type type;
-        private Dictionary<string, ICollection<MemberInfo>> memberPrefixes = new();
+        private readonly Type type;
+        private readonly Dictionary<string, ICollection<MemberInfo>> memberPrefixes = new();
 
-        public static string Name { get { return "Complexity of Member prefix"; } }
+        public static string Name => "Complexity of Member prefix";
+
         public MemberPrefixCriteria(Type type)
         {
             this.type = type;
@@ -29,14 +30,14 @@ namespace Prototype.Criteria
             {
                 //get all prefixes with the memberInfo
                 if (member.Name.Length <= 3) continue;
-                memberPrefixes.AddOrCreate(member.Name.Substring(0, 3), member);
+                memberPrefixes.AddOrCreate(member.Name[..3], member);
             }
-            foreach (var members in memberPrefixes)
+            foreach (var (key, value) in memberPrefixes)
             {
-                if (members.Value.Count == 1)
+                if (value.Count == 1)
                 {
                     //if only one member with prefix found, ignore prefix
-                    memberPrefixes.Remove(members.Key);
+                    memberPrefixes.Remove(key);
                 }
             }
         }
@@ -49,10 +50,10 @@ namespace Prototype.Criteria
         /// <returns>complexity of member prefixes</returns>
         public double CalculateComplexity()
         {
-            double complexity = 0.0;
+            var complexity = 0.0;
             foreach (var members in memberPrefixes)
             {
-                complexity += members.Value.Count / 2;
+                complexity += members.Value.Count / 2.0;
             }
             return complexity;
         }
@@ -60,13 +61,13 @@ namespace Prototype.Criteria
         public ICollection<ProblemReport> GenerateProblemReports()
         {
             ICollection<ProblemReport> problemReports = new List<ProblemReport>();
-            foreach (var members in memberPrefixes)
+            foreach (var (key, value) in memberPrefixes)
             {
-                if (members.Value.Count > FLAG_OK)
+                if (value.Count > FlagOk)
                 {
                     problemReports.Add(new ProblemReport(
-                        type.Name, $"Prefix {members.Key} -> {members.Value.ValuesToString()}",
-                        $"Type has more than {FLAG_OK} members with prefix {members.Key}. Has {members.Value.Count}.",
+                        type.Name, $"Prefix {key} -> {value.ValuesToString()}",
+                        $"Type has more than {FlagOk} members with prefix {key}. Has {value.Count}.",
                         Name, "Rename members or remove some to reduce count of members with same prefix."
                     ));
                 }

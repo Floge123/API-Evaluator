@@ -14,16 +14,17 @@ namespace Prototype.Criteria
         /// <summary>
         /// According to the rule of 30, a Type should have no more than 30 members on average.
         /// </summary>
-        private const int FLAG_OK = 30;
+        private const int FlagOk = 30;
 
-        private Type type;
-        private int memberCount;
+        private readonly Type type;
+        private readonly int memberCount;
 
-        public static string Name { get { return "Complexity of Member Count"; } }
+        public static string Name => "Complexity of Member Count";
+
         public MemberCountCriteria(Type type)
         {
             this.type = type;
-            this.memberCount = type.GetMembers().Length;
+            memberCount = type.GetMembers().Length;
         }
 
         /// <summary>
@@ -39,11 +40,11 @@ namespace Prototype.Criteria
         public ICollection<ProblemReport> GenerateProblemReports()
         {
             ICollection<ProblemReport> problemReports = new List<ProblemReport>();
-            if (memberCount > FLAG_OK)
+            if (memberCount > FlagOk)
             {
                 problemReports.Add(new ProblemReport(
                     type.Name, "",
-                    $"Type has more than {FLAG_OK} members. Has {memberCount}.",
+                    $"Type has more than {FlagOk} members. Has {memberCount}.",
                     Name, "Reduce number of public members. Too many choices are" +
                     "overwhelming, when looking for correct member."
                 ));
