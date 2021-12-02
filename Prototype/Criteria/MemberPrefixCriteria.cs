@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Prototype.ExtensionMethods;
 
@@ -26,10 +27,14 @@ namespace Prototype.Criteria
         public MemberPrefixCriteria(Type type)
         {
             this.type = type;
-            foreach (var member in type.GetMembers())
+            var members = (from t in type.GetMembers()
+                where !(t.Name.StartsWith("get_") 
+                        || t.Name.StartsWith("set_") 
+                        || t.Name.Equals(".ctor")
+                        || t.Name.StartsWith("op_"))
+                select t).ToList();
+            foreach (var member in members.Where(member => member.Name.Length > 3))
             {
-                //get all prefixes with the memberInfo
-                if (member.Name.Length <= 3) continue;
                 memberPrefixes.AddOrCreate(member.Name[..3], member);
             }
             foreach (var (key, value) in memberPrefixes)
@@ -50,17 +55,12 @@ namespace Prototype.Criteria
         /// <returns>complexity of member prefixes</returns>
         public double CalculateComplexity()
         {
-            var complexity = 0.0;
-            foreach (var members in memberPrefixes)
-            {
-                complexity += members.Value.Count / 2.0;
-            }
-            return complexity;
+            return memberPrefixes.Sum(members => members.Value.Count / 2.0);
         }
 
         public ICollection<ProblemReport> GenerateProblemReports()
         {
-            ICollection<ProblemReport> problemReports = new List<ProblemReport>();
+            var problemReports = new List<ProblemReport>();
             foreach (var (key, value) in memberPrefixes)
             {
                 if (value.Count > FlagOk)

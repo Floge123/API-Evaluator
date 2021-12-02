@@ -25,6 +25,7 @@ namespace Prototype.Criteria
             this.typeInfo = typeInfo;
             foreach (var method in typeInfo.GetMethods())
             {
+                var l = method.GetParameters();
                 paramCounts.CreateOrReplace(method.Name, method.GetParameters().Length);
             }
         }
@@ -48,7 +49,7 @@ namespace Prototype.Criteria
 
         public ICollection<ProblemReport> GenerateProblemReports()
         {
-            ICollection<ProblemReport> problemReports = new List<ProblemReport>();
+            var problemReports = new List<ProblemReport>();
             foreach (var (key, value) in paramCounts)
             {
                 if (value > FlagOk)

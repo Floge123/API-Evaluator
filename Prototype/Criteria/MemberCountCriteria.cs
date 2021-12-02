@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Prototype.Criteria
 {
@@ -24,7 +25,14 @@ namespace Prototype.Criteria
         public MemberCountCriteria(Type type)
         {
             this.type = type;
-            memberCount = type.GetMembers().Length;
+            //filter out the get/set methods for properties and constructors
+            var m = (from t in type.GetMembers()
+                    where !(t.Name.StartsWith("get_") 
+                            || t.Name.StartsWith("set_") 
+                            || t.Name.Equals(".ctor")
+                            || t.Name.StartsWith("op_"))
+                    select t).ToList();
+            memberCount = m.Count;
         }
 
         /// <summary>
@@ -39,7 +47,7 @@ namespace Prototype.Criteria
 
         public ICollection<ProblemReport> GenerateProblemReports()
         {
-            ICollection<ProblemReport> problemReports = new List<ProblemReport>();
+            var problemReports = new List<ProblemReport>();
             if (memberCount > FlagOk)
             {
                 problemReports.Add(new ProblemReport(

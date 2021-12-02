@@ -46,7 +46,7 @@ namespace Prototype.Criteria
 
         public ICollection<ProblemReport> GenerateProblemReports()
         {
-            ICollection<ProblemReport> problems = new List<ProblemReport>();
+            var problems = new List<ProblemReport>();
             foreach (var (key, value) in overloads)
             {
                 if (value > FlagOk)

@@ -47,7 +47,7 @@ namespace Prototype.ExtensionMethods
             }
             else
             {
-                dic.Add(key, new V[] { value }.ToList());
+                dic.Add(key, new[] { value }.ToList());
             }
         }
 
