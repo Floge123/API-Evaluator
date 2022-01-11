@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Prototype.Criteria
 {
@@ -24,12 +25,12 @@ namespace Prototype.Criteria
 			count = namespaces.Count;
 		}
 		
-		public double CalculateComplexity()
+		public async Task<double> CalculateComplexity()
 		{
-			return Math.Pow(count, ComplexityExponent);
+			return await Task.FromResult(Math.Pow(count, ComplexityExponent));
 		}
 
-		public ICollection<ProblemReport> GenerateProblemReports()
+		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
 		{
 			var problems = new List<ProblemReport>();
 			if (count > FlagOk)
@@ -41,7 +42,7 @@ namespace Prototype.Criteria
 						      "similar namespaces."));
 			}
 
-			return problems;
+			return await Task.FromResult(problems);
 		}
 	}
 }

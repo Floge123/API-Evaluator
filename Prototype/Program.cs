@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
+using Newtonsoft.Json.Linq;
 using Prototype.Evaluators;
 
 namespace Prototype
 {
     class Program
     {
-        private static void EvaluateAssembly(
+        private static async Task EvaluateAssembly(
             Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
             Dictionary<string, double> complexities)
@@ -23,11 +26,10 @@ namespace Prototype
                 //add all Evaluator here
             };
 
-            foreach (var evaluator in evaluatorList)
+            Parallel.ForEach(evaluatorList, e =>
             {
-                //automaticly run all evaluations
-                evaluator.Evaluate(assembly, problems, complexities);
-            }
+                e.Evaluate(assembly, problems, complexities);
+            });
         }
 
         private static Assembly LoadAssembly(string[] consoleArgs)
@@ -56,19 +58,26 @@ namespace Prototype
             }
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            var sw = new Stopwatch();
+            sw.Start();
             Assembly assembly = LoadAssembly(args);
 
             var problems = new Dictionary<string, ICollection<ProblemReport>>();
             var complexities = new Dictionary<string, double>();
 
-            EvaluateAssembly(assembly, problems, complexities);
+            await EvaluateAssembly(assembly, problems, complexities);
 
             if (!Directory.Exists("results")) Directory.CreateDirectory("results");
-            File.WriteAllText($"results\\{assembly.GetName().Name}_problems.json", JsonConvert.SerializeObject(problems));
-            File.WriteAllText($"results\\{assembly.GetName().Name}_complexities.json", JsonConvert.SerializeObject(complexities));
-            Console.WriteLine("Successfully finished evaluation.\n See results in [bin\\Debug\\net5.0\\results");
+            await Task.WhenAll(
+                File.WriteAllTextAsync($"results\\{assembly.GetName().Name}_problems.json",
+                    JsonConvert.SerializeObject(problems)),
+                File.WriteAllTextAsync($"results\\{assembly.GetName().Name}_complexities.json",
+                    JsonConvert.SerializeObject(complexities))
+            );
+            sw.Stop();
+            Console.WriteLine($"Successfully finished evaluation in {sw.ElapsedMilliseconds}ms.\n See results in [bin\\Debug\\net5.0\\results");
         }
     }
 }

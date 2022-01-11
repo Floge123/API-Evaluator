@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
 namespace Prototype.Criteria
@@ -21,33 +22,33 @@ namespace Prototype.Criteria
 			}
 		}
 		
-		public double CalculateComplexity()
+		public async Task<double> CalculateComplexity()
 		{
 			var complexity = 0.0;
-			foreach (var (_, types) in namespaceDictionary)
+			foreach (var (_, t) in namespaceDictionary)
 			{
-				complexity += types.Count;
+				complexity += t.Count;
 			}
 
-			return complexity / namespaceDictionary.Count;
+			return await Task.FromResult(complexity / namespaceDictionary.Count);
 		}
 
-		public ICollection<ProblemReport> GenerateProblemReports()
+		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
 		{
 			var problems = new List<ProblemReport>();
-			foreach (var (ns, types) in namespaceDictionary)
+			foreach (var (ns, t) in namespaceDictionary)
 			{
-				if (types.Count > FlagOk)
+				if (t.Count > FlagOk)
 				{
 					problems.Add(new ProblemReport(
 						"", ns,
-						$"Namespace has {types.Count} types. Maximum set is 30.",
+						$"Namespace has {t.Count} types. Maximum set is 30.",
 						Name, "Reduce amount of types per namespace by refactoring into more namespaces " +
 						      "or removing not needed types.")
 					);
 				}
 			}
-			return problems;
+			return await Task.FromResult(problems);
 		}
 	}
 }

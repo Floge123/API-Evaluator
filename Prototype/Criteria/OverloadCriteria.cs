@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
 namespace Prototype.Criteria
@@ -31,7 +32,7 @@ namespace Prototype.Criteria
         /// Complexity increase by 1 for each overload found.
         /// </summary>
         /// <returns>complexity of overloads</returns>
-        public double CalculateComplexity()
+        public async Task<double> CalculateComplexity()
         {
             var complexity = 0.0;
             foreach (var (_, value) in overloads)
@@ -41,10 +42,10 @@ namespace Prototype.Criteria
                     complexity += value;
                 }
             }
-            return complexity;
+            return await Task.FromResult(complexity);
         }
 
-        public ICollection<ProblemReport> GenerateProblemReports()
+        public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
             var problems = new List<ProblemReport>();
             foreach (var (key, value) in overloads)
@@ -58,7 +59,7 @@ namespace Prototype.Criteria
                     );
                 }
             }
-            return problems;
+            return await Task.FromResult(problems);
         }
     }
 }

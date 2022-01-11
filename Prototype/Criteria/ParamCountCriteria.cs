@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
 namespace Prototype.Criteria
@@ -34,7 +35,7 @@ namespace Prototype.Criteria
         /// The complexity increases exponentially by 2.5 per additional parameter
         /// </summary>
         /// <returns>complexity of method parameter count</returns>
-        public double CalculateComplexity()
+        public async Task<double> CalculateComplexity()
         {
             double complexity = 0;
             foreach (var methods in paramCounts)
@@ -44,10 +45,10 @@ namespace Prototype.Criteria
                     complexity += 2.5 * i;
                 }
             }
-            return complexity;
+            return await Task.FromResult(complexity);
         }
 
-        public ICollection<ProblemReport> GenerateProblemReports()
+        public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
             var problemReports = new List<ProblemReport>();
             foreach (var (key, value) in paramCounts)
@@ -62,7 +63,7 @@ namespace Prototype.Criteria
                 }
             }
             
-            return problemReports;
+            return await Task.FromResult(problemReports);
         }
     }
 }

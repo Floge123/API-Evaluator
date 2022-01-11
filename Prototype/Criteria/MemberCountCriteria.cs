@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Prototype.Criteria
 {
@@ -40,12 +41,12 @@ namespace Prototype.Criteria
         /// With every member, the complexity of this search increases by 1/6.
         /// </summary>
         /// <returns>complexity of the member count</returns>
-        public double CalculateComplexity()
+        public async Task<double> CalculateComplexity()
         {
-            return memberCount * (1.0 / 3.0) * (1.0 / 6.0);
+            return await Task.FromResult(memberCount * (1.0 / 3.0) * (1.0 / 6.0));
         }
 
-        public ICollection<ProblemReport> GenerateProblemReports()
+        public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
             var problemReports = new List<ProblemReport>();
             if (memberCount > FlagOk)
@@ -57,7 +58,7 @@ namespace Prototype.Criteria
                     "overwhelming, when looking for correct member."
                 ));
             }
-            return problemReports;
+            return await Task.FromResult(problemReports);
         }
     }
 }

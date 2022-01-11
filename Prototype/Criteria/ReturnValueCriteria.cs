@@ -31,7 +31,7 @@ namespace Prototype.Criteria
         /// Complexity increase by 7 for each returnValue != null.
         /// </summary>
         /// <returns>complexity of return values</returns>
-        public double CalculateComplexity()
+        public async Task<double> CalculateComplexity()
         {
             var complexity = 0.0;
             foreach (var method in type.GetMethods())
@@ -41,12 +41,12 @@ namespace Prototype.Criteria
                     complexity += ComplexityIncrease;
                 }
             }
-            return complexity;
+            return await Task.FromResult(complexity);
         }
 
-        public ICollection<ProblemReport> GenerateProblemReports()
+        public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
-            return new List<ProblemReport>();
+            return await Task.FromResult(new List<ProblemReport>());
         }
     }
 }

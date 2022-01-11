@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Prototype.Criteria
 {
@@ -15,12 +16,12 @@ namespace Prototype.Criteria
 			this.types = types ?? throw new ArgumentNullException(nameof(types));
 		}
 		
-		public double CalculateComplexity()
+		public async Task<double> CalculateComplexity()
 		{
-			return types.Length;
+			return await Task.FromResult(types.Length);
 		}
 
-		public ICollection<ProblemReport> GenerateProblemReports()
+		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
 		{
 			var problems = new List<ProblemReport>();
 			if (types.Length > FlagOk)
@@ -31,7 +32,7 @@ namespace Prototype.Criteria
 					Name, "This is just for info, no fix needed.")
 				);
 			}
-			return problems;
+			return await Task.FromResult(problems);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
 namespace Prototype.Criteria
@@ -53,12 +54,12 @@ namespace Prototype.Criteria
         /// Add up this complexity for all prefixes with more than 1 member.
         /// </summary>
         /// <returns>complexity of member prefixes</returns>
-        public double CalculateComplexity()
+        public async Task<double> CalculateComplexity()
         {
-            return memberPrefixes.Sum(members => members.Value.Count / 2.0);
+            return await Task.FromResult(memberPrefixes.Sum(members => members.Value.Count / 2.0));
         }
 
-        public ICollection<ProblemReport> GenerateProblemReports()
+        public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
             var problemReports = new List<ProblemReport>();
             foreach (var (key, value) in memberPrefixes)
@@ -72,7 +73,7 @@ namespace Prototype.Criteria
                     ));
                 }
             }
-            return problemReports;
+            return await Task.FromResult(problemReports);
         }
     }
 }
