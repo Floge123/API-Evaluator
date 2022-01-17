@@ -26,7 +26,6 @@ namespace Prototype.Criteria
             this.typeInfo = typeInfo;
             foreach (var method in typeInfo.GetMethods())
             {
-                var l = method.GetParameters();
                 paramCounts.CreateOrReplace(method.Name, method.GetParameters().Length);
             }
         }
@@ -38,9 +37,9 @@ namespace Prototype.Criteria
         public async Task<double> CalculateComplexity()
         {
             double complexity = 0;
-            foreach (var methods in paramCounts)
+            foreach (var (_, count) in paramCounts)
             {
-                for (var i = 1; i <= methods.Value; i++)
+                for (var i = 1; i <= count; i++)
                 {
                     complexity += 2.5 * i;
                 }
@@ -51,13 +50,13 @@ namespace Prototype.Criteria
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
             var problemReports = new List<ProblemReport>();
-            foreach (var (key, value) in paramCounts)
+            foreach (var (method, count) in paramCounts)
             {
-                if (value > FlagOk)
+                if (count > FlagOk)
                 {
                     problemReports.Add(new ProblemReport(
-                        typeInfo.Name, key,
-                        $"Method has more than {FlagOk} parameters. Has {value}.",
+                        typeInfo.Name, method,
+                        $"Method has more than {FlagOk} parameters. Has {count}.",
                         Name, "Reduce number of parameters or provide overload with less parameters."
                     ));
                 }

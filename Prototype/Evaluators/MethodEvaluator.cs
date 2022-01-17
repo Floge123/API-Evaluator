@@ -88,7 +88,7 @@ namespace Prototype.Evaluators
                     value /= _assemblyTypes.Sum(type => type.GetMethods().Length);
                 }
                 
-                _complexities.CreateOrIncrease(criteria, value);
+                _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
             }
         }
         

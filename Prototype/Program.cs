@@ -13,7 +13,7 @@ namespace Prototype
 {
     class Program
     {
-        private static async Task EvaluateAssembly(
+        private static void EvaluateAssembly(
             Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
             Dictionary<string, double> complexities)
@@ -67,7 +67,7 @@ namespace Prototype
             var problems = new Dictionary<string, ICollection<ProblemReport>>();
             var complexities = new Dictionary<string, double>();
 
-            await EvaluateAssembly(assembly, problems, complexities);
+            EvaluateAssembly(assembly, problems, complexities);
 
             if (!Directory.Exists("results")) Directory.CreateDirectory("results");
             await Task.WhenAll(

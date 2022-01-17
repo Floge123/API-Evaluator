@@ -75,7 +75,7 @@ namespace Prototype.Evaluators
                 var value = complexityList.Sum(complexity => complexity.Result);
 
                 value /= _assemblyType.Length;
-                _complexities.CreateOrIncrease(criteria, value);
+                _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
             }
         }
 

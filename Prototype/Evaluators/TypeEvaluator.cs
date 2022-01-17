@@ -75,7 +75,7 @@ namespace Prototype.Evaluators
             {
                 await Task.WhenAll(complexityList);
                 var value = complexityList.Sum(complexity => complexity.Result);
-                _complexities.CreateOrIncrease(criteria, value);
+                _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
             }
         }
         
