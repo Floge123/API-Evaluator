@@ -11,7 +11,7 @@ namespace Prototype.Evaluators
 {
     public class MemberEvaluator : IEvaluator
     {
-        private Type[] _assemblyType;
+        private Type[] _assemblyTypes;
         private Dictionary<string, ICollection<ProblemReport>> _problems;
         private Dictionary<string, double> _complexities;
         private Dictionary<string, IList<Task<double>>> _complexityTasks;
@@ -22,7 +22,7 @@ namespace Prototype.Evaluators
             Dictionary<string, ICollection<ProblemReport>> problems,
             Dictionary<string, double> complexities)
         {
-            _assemblyType = assembly.GetExportedTypes(); //get all public types of assembly
+            _assemblyTypes = assembly.GetExportedTypes(); //get all public types of assembly
             this._problems = problems ?? throw new ArgumentNullException(nameof(problems));
             this._complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
             Console.WriteLine("Starting Member");
@@ -53,7 +53,7 @@ namespace Prototype.Evaluators
 
         private void DoEvaluation()
         {
-            foreach(var type in _assemblyType)
+            foreach(var type in _assemblyTypes)
             {
                 EvaluateCriteria(type, MemberCountCriteria.Name, type => new MemberCountCriteria(type));
                 EvaluateCriteria(type, MemberPrefixCriteria.Name, type => new MemberPrefixCriteria(type));
@@ -74,7 +74,7 @@ namespace Prototype.Evaluators
                 await Task.WhenAll(complexityList);
                 var value = complexityList.Sum(complexity => complexity.Result);
 
-                value /= _assemblyType.Length;
+                value /= _assemblyTypes.Length;
                 _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
             }
         }

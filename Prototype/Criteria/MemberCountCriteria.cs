@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Prototype.ExtensionMethods;
 
 namespace Prototype.Criteria
 {
@@ -16,7 +18,7 @@ namespace Prototype.Criteria
         /// <summary>
         /// According to the rule of 30, a Type should have no more than 30 members on average.
         /// </summary>
-        private const int FlagOk = 30;
+        private const int FlagOk = 43;
 
         private readonly Type type;
         private readonly int memberCount;
@@ -26,14 +28,12 @@ namespace Prototype.Criteria
         public MemberCountCriteria(Type type)
         {
             this.type = type;
-            //filter out the get/set methods for properties and constructors
-            var m = (from t in type.GetMembers()
-                    where !(t.Name.StartsWith("get_") 
-                            || t.Name.StartsWith("set_") 
-                            || t.Name.Equals(".ctor")
-                            || t.Name.StartsWith("op_"))
-                    select t).ToList();
-            memberCount = m.Count;
+            memberCount = type.GetMembers()
+                .Where(m => !m.Name.StartsWith("get_") &&
+                            !m.Name.StartsWith("set_")) //ignore getter and setter for properties
+                .Select(m => m.Name)
+                .Distinct() //ignore overloads
+                .Count();
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Prototype.Criteria
         /// <returns>complexity of the member count</returns>
         public async Task<double> CalculateComplexity()
         {
-            return await Task.FromResult(memberCount * (1.0 / 3.0) * (1.0 / 6.0));
+            return await Task.FromResult(memberCount / 3.0 / 6.0);
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()

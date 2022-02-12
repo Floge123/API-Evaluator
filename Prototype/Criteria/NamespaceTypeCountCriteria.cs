@@ -8,14 +8,12 @@ namespace Prototype.Criteria
 	public class NamespaceTypeCountCriteria : ICriteria
 	{
 		private const int FlagOk = 30;
-		private readonly Type[] types;
 		private Dictionary<string, ICollection<Type>> namespaceDictionary = new();
 
 		public static string Name => "Complexity of Type Count per Namespace";
 
-		public NamespaceTypeCountCriteria(Type[] types)
+		public NamespaceTypeCountCriteria(IEnumerable<Type> types)
 		{
-			this.types = types ?? throw new ArgumentNullException(nameof(types));
 			foreach (var type in types)
 			{
 				namespaceDictionary.AddOrCreate(type.Namespace, type);
