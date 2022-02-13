@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.MethodScope
 {
     /// <summary>
     /// A return value increase the complexity of a method by quite a lot.
@@ -18,13 +17,13 @@ namespace Prototype.Criteria
         /// We assume 87.5% of return values are used, therefore use complexity of 7.
         /// </summary>
         private const int ComplexityIncrease = 7;
-        private readonly Type type;
+        private readonly MethodInfo methodInfo;
 
         public static string Name => "Complexity of Method Return Values";
 
-        public ReturnValueCriteria(Type type)
+        public ReturnValueCriteria(MethodInfo methodInfo)
         {
-            this.type = type;
+            this.methodInfo = methodInfo;
         }
 
         /// <summary>
@@ -33,15 +32,7 @@ namespace Prototype.Criteria
         /// <returns>complexity of return values</returns>
         public async Task<double> CalculateComplexity()
         {
-            var complexity = 0.0;
-            foreach (var method in type.GetMethods())
-            {
-                if (method.ReturnType != typeof(void))
-                {
-                    complexity += ComplexityIncrease;
-                }
-            }
-            return await Task.FromResult(complexity);
+            return await Task.FromResult(methodInfo.ReturnType != typeof(void) ? ComplexityIncrease : 0);
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()

@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.MethodScope
 {
     /// <summary>
     /// To understand a method, the user has to understand the parameters.
@@ -16,18 +16,15 @@ namespace Prototype.Criteria
         /// A method with more than 4 parameters is considered a problem.
         /// </summary>
         private const int FlagOk = 4;
-        private readonly Dictionary<string, int> paramCounts = new();
-        private readonly Type typeInfo;   
+        private readonly MethodInfo methodInfo;
+        private readonly int paramCount;
 
         public static string Name => "Complexity of Method Parameter Counts";
 
-        public ParamCountCriteria(Type typeInfo)
+        public ParamCountCriteria(MethodInfo methodInfo)
         {
-            this.typeInfo = typeInfo;
-            foreach (var method in typeInfo.GetMethods())
-            {
-                paramCounts.CreateOrReplace(method.Name, method.GetParameters().Length);
-            }
+            this.methodInfo = methodInfo;
+            this.paramCount = methodInfo.GetParameters().Length;
         }
 
         /// <summary>
@@ -36,33 +33,34 @@ namespace Prototype.Criteria
         /// <returns>complexity of method parameter count</returns>
         public async Task<double> CalculateComplexity()
         {
-            double complexity = 0;
-            foreach (var (_, count) in paramCounts)
+            return await Task.Run(() =>
             {
-                for (var i = 1; i <= count; i++)
+                double complexity = 0;
+                for (var i = 1; i <= paramCount; i++)
                 {
                     complexity += 2.5 * i;
                 }
-            }
-            return await Task.FromResult(complexity);
+
+                return complexity;
+            });
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
-            var problemReports = new List<ProblemReport>();
-            foreach (var (method, count) in paramCounts)
+            return await Task.Run(() =>
             {
-                if (count > FlagOk)
+                var problemReports = new List<ProblemReport>();
+                if (paramCount > FlagOk)
                 {
                     problemReports.Add(new ProblemReport(
-                        typeInfo.Name, method,
-                        $"Method has more than {FlagOk} parameters. Has {count}.",
+                        methodInfo.DeclaringType?.Name, methodInfo.Name,
+                        $"Method has more than {FlagOk} parameters. Has {paramCount}.",
                         Name, "Reduce number of parameters or provide overload with less parameters."
                     ));
                 }
-            }
-            
-            return await Task.FromResult(problemReports);
+
+                return problemReports;
+            });
         }
     }
 }

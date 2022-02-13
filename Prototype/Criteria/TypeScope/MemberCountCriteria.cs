@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using Prototype.ExtensionMethods;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.TypeScope
 {
     /// <summary>
     /// This criteria is relevant, when the user has to search for a specific member.
@@ -43,22 +41,26 @@ namespace Prototype.Criteria
         /// <returns>complexity of the member count</returns>
         public async Task<double> CalculateComplexity()
         {
-            return await Task.FromResult(memberCount / 3.0 / 6.0);
+            return await Task.Run(() => memberCount / 3.0 / 6.0);
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
-            var problemReports = new List<ProblemReport>();
-            if (memberCount > FlagOk)
+            return await Task.Run(() =>
             {
-                problemReports.Add(new ProblemReport(
-                    type.Name, "",
-                    $"Type has more than {FlagOk} members. Has {memberCount}.",
-                    Name, "Reduce number of public members. Too many choices are" +
-                    "overwhelming, when looking for correct member."
-                ));
-            }
-            return await Task.FromResult(problemReports);
+                var problemReports = new List<ProblemReport>();
+                if (memberCount > FlagOk)
+                {
+                    problemReports.Add(new ProblemReport(
+                        type.Name, "",
+                        $"Type has more than {FlagOk} members. Has {memberCount}.",
+                        Name, "Reduce number of public members. Too many choices are" +
+                              "overwhelming, when looking for correct member."
+                    ));
+                }
+
+                return problemReports;
+            });
         }
     }
 }

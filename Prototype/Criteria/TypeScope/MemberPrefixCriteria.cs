@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.TypeScope
 {
     /// <summary>
     /// When searching for a specific member, the prefix of that method should help narrow down the search.
@@ -56,24 +56,28 @@ namespace Prototype.Criteria
         /// <returns>complexity of member prefixes</returns>
         public async Task<double> CalculateComplexity()
         {
-            return await Task.FromResult(memberPrefixes.Sum(members => members.Value.Count / 2.0));
+            return await Task.Run(() => memberPrefixes.Sum(members => members.Value.Count / 2.0));
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
-            var problemReports = new List<ProblemReport>();
-            foreach (var (key, value) in memberPrefixes)
+            return await Task.Run(() =>
             {
-                if (value.Count > FlagOk)
+                var problemReports = new List<ProblemReport>();
+                foreach (var (key, value) in memberPrefixes)
                 {
-                    problemReports.Add(new ProblemReport(
-                        type.Name, $"Prefix {key} -> {value.ValuesToString()}",
-                        $"Type has more than {FlagOk} members with prefix {key}. Has {value.Count}.",
-                        Name, "Rename members or remove some to reduce count of members with same prefix."
-                    ));
+                    if (value.Count > FlagOk)
+                    {
+                        problemReports.Add(new ProblemReport(
+                            type.Name, $"Prefix {key} -> {value.ValuesToString()}",
+                            $"Type has more than {FlagOk} members with prefix {key}. Has {value.Count}.",
+                            Name, "Rename members or remove some to reduce count of members with same prefix."
+                        ));
+                    }
                 }
-            }
-            return await Task.FromResult(problemReports);
+
+                return problemReports;
+            });
         }
     }
 }

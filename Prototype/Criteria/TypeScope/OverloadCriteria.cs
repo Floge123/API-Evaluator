@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Prototype.ExtensionMethods;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.TypeScope
 {
     /// <summary>
     /// Member Overloading is a complexity-friendly way to increase functionality.
@@ -34,32 +34,40 @@ namespace Prototype.Criteria
         /// <returns>complexity of overloads</returns>
         public async Task<double> CalculateComplexity()
         {
-            var complexity = 0.0;
-            foreach (var (_, value) in overloads)
+            return await Task.Run(() =>
             {
-                if (value > 1)
+                var complexity = 0.0;
+                foreach (var (_, value) in overloads)
                 {
-                    complexity += value;
+                    if (value > 1)
+                    {
+                        complexity += value;
+                    }
                 }
-            }
-            return await Task.FromResult(complexity);
+
+                return complexity;
+            });
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
         {
-            var problems = new List<ProblemReport>();
-            foreach (var (key, value) in overloads)
+            return await Task.Run(() =>
             {
-                if (value > FlagOk)
+                var problems = new List<ProblemReport>();
+                foreach (var (key, value) in overloads)
                 {
-                    problems.Add(new ProblemReport(
-                        type.Name, key,
-                        $"Method has {value} overloads.",
-                        Name, "This is just for info, no fix needed.")
-                    );
+                    if (value > FlagOk)
+                    {
+                        problems.Add(new ProblemReport(
+                            type.Name, key,
+                            $"Method has {value} overloads.",
+                            Name, "This is just for info, no fix needed.")
+                        );
+                    }
                 }
-            }
-            return await Task.FromResult(problems);
+
+                return problems;
+            });
         }
     }
 }

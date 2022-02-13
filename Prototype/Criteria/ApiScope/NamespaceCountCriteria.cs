@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.ApiScope
 {
 	public class NamespaceCountCriteria : ICriteria
 	{
@@ -27,22 +26,25 @@ namespace Prototype.Criteria
 		
 		public async Task<double> CalculateComplexity()
 		{
-			return await Task.FromResult(Math.Pow(count, ComplexityExponent));
+			return await Task.Run(() => Math.Pow(count, ComplexityExponent));
 		}
 
 		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
 		{
-			var problems = new List<ProblemReport>();
-			if (count > FlagOk)
+			return await Task.Run(() =>
 			{
-				problems.Add(new ProblemReport(
+				var problems = new List<ProblemReport>();
+				if (count > FlagOk)
+				{
+					problems.Add(new ProblemReport(
 						"", "",
 						$"Assembly has {count} namespaces. Maximum set to 30.",
 						Name, "Reduce the number of namespaces used in the assembly. If possible, merge " +
 						      "similar namespaces."));
-			}
+				}
 
-			return await Task.FromResult(problems);
+				return problems;
+			});
 		}
 	}
 }

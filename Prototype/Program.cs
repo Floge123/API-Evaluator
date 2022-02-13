@@ -18,9 +18,9 @@ namespace Prototype
         {
             List<IEvaluator> evaluatorList = new()
             {
-                new MethodEvaluator(),
-                new MemberEvaluator(),
-                new TypeEvaluator()
+                new MethodScopeEvaluator(),
+                new TypeScopeEvaluator(),
+                new ApiScopeEvaluator()
                 //add all Evaluator here
             };
 

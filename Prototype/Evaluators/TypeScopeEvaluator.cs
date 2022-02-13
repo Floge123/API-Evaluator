@@ -1,36 +1,43 @@
 ﻿using Prototype.Criteria;
-using Prototype.ExtensionMethods;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
+using Prototype.Criteria.TypeScope;
+using Prototype.ExtensionMethods;
 
 namespace Prototype.Evaluators
 {
-    public class MethodEvaluator : IEvaluator
+    public class TypeScopeEvaluator : IEvaluator
     {
         private Type[] _assemblyTypes;
         private Dictionary<string, ICollection<ProblemReport>> _problems;
         private Dictionary<string, double> _complexities;
         private Dictionary<string, IList<Task<double>>> _complexityTasks;
         private Dictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
-        private readonly IList<string> _criteria = new List<string> {ParamCountCriteria.Name, OverloadCriteria.Name, ReturnValueCriteria.Name};
+        private readonly IList<string> _criteria = new List<string> {MemberCountCriteria.Name, OverloadCriteria.Name, MemberPrefixCriteria.Name};
 
         public async Task Evaluate(Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
             Dictionary<string, double> complexities)
         {
-            _assemblyTypes = assembly.GetExportedTypes();
+            _assemblyTypes = assembly.GetExportedTypes(); //get all public types of assembly
             this._problems = problems ?? throw new ArgumentNullException(nameof(problems));
             this._complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
-            //call all private evaluations
-            Console.WriteLine("Starting Method");
-            await EvaluateMethods();
+            Console.WriteLine("Starting Type Scope");
+            try
+            {
+                await EvaluateMember();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
         }
-        
+
         private void InitTaskDictionaries()
         {
             this._complexityTasks = new Dictionary<string, IList<Task<double>>>();
@@ -42,24 +49,24 @@ namespace Prototype.Evaluators
             }
         }
 
-        private async Task EvaluateMethods()
+        private async Task EvaluateMember()
         {
             Stopwatch sw = new Stopwatch();
-           sw.Start();
-           InitTaskDictionaries();
-           DoEvaluation();
-           await Task.WhenAll(ProcessComplexities(), ProcessProblems());
-           sw.Stop();
-           Console.WriteLine($"Finished Method in {sw.ElapsedMilliseconds}ms");
+            sw.Start();
+            InitTaskDictionaries();
+            DoEvaluation();
+            await Task.WhenAll(ProcessComplexities(), ProcessProblems());
+            sw.Stop();
+            Console.WriteLine($"Finished Type Scope in {sw.ElapsedMilliseconds}ms");
         }
 
         private void DoEvaluation()
         {
             foreach(var type in _assemblyTypes)
             {
-                EvaluateCriteria(type, ParamCountCriteria.Name, type => new ParamCountCriteria(type));
+                EvaluateCriteria(type, MemberCountCriteria.Name, type => new MemberCountCriteria(type));
+                EvaluateCriteria(type, MemberPrefixCriteria.Name, type => new MemberPrefixCriteria(type));
                 EvaluateCriteria(type, OverloadCriteria.Name, type => new OverloadCriteria(type));
-                EvaluateCriteria(type, ReturnValueCriteria.Name, type => new ReturnValueCriteria(type));
             }
         }
         
@@ -69,7 +76,7 @@ namespace Prototype.Evaluators
             _complexityTasks[name].Add(criteria.CalculateComplexity());
             _problemTasks[name].Add(criteria.GenerateProblemReports());
         }
-        
+
         private async Task ProcessComplexities()
         {
             foreach (var (criteria, complexityList) in _complexityTasks)
@@ -77,21 +84,11 @@ namespace Prototype.Evaluators
                 await Task.WhenAll(complexityList);
                 var value = complexityList.Sum(complexity => complexity.Result);
 
-                if (criteria.Equals(OverloadCriteria.Name))
-                {
-                    //overload complexity per type
-                    value /= _assemblyTypes.Length;
-                }
-                else
-                {
-                    //parameter count complexity and return value complexity per method
-                    value /= _assemblyTypes.Sum(type => type.GetMethods().Length);
-                }
-                
+                value /= _assemblyTypes.Length;
                 _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
             }
         }
-        
+
         private async Task ProcessProblems()
         {
             foreach (var (criteria, problemList) in _problemTasks)

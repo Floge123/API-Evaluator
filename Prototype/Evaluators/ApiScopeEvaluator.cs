@@ -1,15 +1,16 @@
-﻿using Prototype.Criteria;
-using Prototype.ExtensionMethods;
+﻿using Prototype.ExtensionMethods;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Prototype.Criteria;
+using Prototype.Criteria.ApiScope;
 
 namespace Prototype.Evaluators
 {
-    public class TypeEvaluator : IEvaluator
+    public class ApiScopeEvaluator : IEvaluator
     {
         private Type[] _assemblyTypes;
         private Dictionary<string, ICollection<ProblemReport>> _problems;
@@ -26,7 +27,7 @@ namespace Prototype.Evaluators
             this._problems = problems ?? throw new ArgumentNullException(nameof(problems));
             this._complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
             //call all private evaluations
-            Console.WriteLine("Starting Type");
+            Console.WriteLine("Starting Api Scope");
             await EvaluateCounts();
         }
         
@@ -49,7 +50,7 @@ namespace Prototype.Evaluators
             DoEvaluation();
             await Task.WhenAll(ProcessComplexities(), ProcessProblems());
             sw.Stop();
-            Console.WriteLine($"Finished Type in {sw.ElapsedMilliseconds}ms");
+            Console.WriteLine($"Finished Api Scope in {sw.ElapsedMilliseconds}ms");
         }
         
         private void DoEvaluation()

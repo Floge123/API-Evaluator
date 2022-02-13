@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Prototype.Criteria
+namespace Prototype.Criteria.ApiScope
 {
 	public class TypeCountCriteria : ICriteria
 	{
@@ -24,16 +24,20 @@ namespace Prototype.Criteria
 
 		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
 		{
-			var problems = new List<ProblemReport>();
-			if (typeCount > FlagOk)
+			return await Task.Run(() =>
 			{
-				problems.Add(new ProblemReport(
-					"", "",
-					$"Assembly has {typeCount} types.",
-					Name, "This is just for info, no fix needed.")
-				);
-			}
-			return await Task.FromResult(problems);
+				var problems = new List<ProblemReport>();
+				if (typeCount > FlagOk)
+				{
+					problems.Add(new ProblemReport(
+						"", "",
+						$"Assembly has {typeCount} types.",
+						Name, "This is just for info, no fix needed.")
+					);
+				}
+
+				return problems;
+			});
 		}
 	}
 }
