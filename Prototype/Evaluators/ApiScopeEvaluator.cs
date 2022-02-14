@@ -50,6 +50,7 @@ namespace Prototype.Evaluators
             DoEvaluation();
             await Task.WhenAll(ProcessComplexities(), ProcessProblems());
             sw.Stop();
+            
             Console.WriteLine($"Finished Api Scope in {sw.ElapsedMilliseconds}ms");
         }
         

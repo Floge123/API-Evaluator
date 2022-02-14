@@ -8,25 +8,31 @@ namespace Prototype.ExtensionMethods
     {
         public static void CreateOrIncrease<K>(this Dictionary<K, double> dic, K key, double value)
         {
-            if (dic.ContainsKey(key))
+            lock (dic)
             {
-                dic[key] += value;
-            }
-            else
-            {
-                dic.Add(key, value);
+                if (dic.ContainsKey(key))
+                {
+                    dic[key] += value;
+                }
+                else
+                {
+                    dic.Add(key, value);
+                }
             }
         }
 
         public static void CreateOrIncrement<K>(this Dictionary<K, int> dic, K key)
         {
-            if (dic.ContainsKey(key))
+            lock (dic)
             {
-                dic[key]++;
-            }
-            else
-            {
-                dic.Add(key, 1);
+                if (dic.ContainsKey(key))
+                {
+                    dic[key]++;
+                }
+                else
+                {
+                    dic.Add(key, 1);
+                }
             }
         }
 
@@ -41,40 +47,34 @@ namespace Prototype.ExtensionMethods
         public static void AddOrCreate<K, V>(this Dictionary<K, ICollection<V>> dic, K key, V value)
         {
             if (value is null) return;
-            if (dic.ContainsKey(key))
+            lock (dic)
             {
-                dic[key].Add(value);
-            }
-            else
-            {
-                dic.Add(key, new[] { value }.ToList());
-            }
-        }
-
-        public static void CreateOrReplace<K, V>(this Dictionary<K, V> dic, K key, V value)
-        {
-            if (value is null) return;
-            if (dic.ContainsKey(key))
-            {
-                dic[key] = value;
-            }
-            else
-            {
-                dic.Add(key, value);
+                if (dic.ContainsKey(key))
+                {
+                    dic[key].Add(value);
+                }
+                else
+                {
+                    dic.Add(key, new[] {value}.ToList());
+                }
             }
         }
 
         public static void AddOrCreate<K, V>(this Dictionary<K, ICollection<V>> dic, K key, ICollection<V> value)
         {
             if (value is null) return;
-            if (dic.ContainsKey(key))
+            lock (dic)
             {
-                dic[key].AddAll(value);
+                if (dic.ContainsKey(key))
+                {
+                    dic[key].AddAll(value);
+                }
+                else
+                {
+                    dic.Add(key, value);
+                }
             }
-            else
-            {
-                dic.Add(key, value);
-            }
+            
         }
     }
 }
