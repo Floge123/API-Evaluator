@@ -12,29 +12,10 @@ namespace Prototype
 {
     class Program
     {
-        private static void EvaluateAssembly(
-            Assembly assembly,
-            Dictionary<string, ICollection<ProblemReport>> problems,
-            Dictionary<string, double> complexities)
-        {
-            List<IEvaluator> evaluatorList = new()
-            {
-                new MethodScopeEvaluator(),
-                new TypeScopeEvaluator(),
-                new ApiScopeEvaluator()
-                //add all Evaluator here
-            };
-
-            Parallel.ForEach(evaluatorList, e =>
-            {
-                e.Evaluate(assembly, problems, complexities);
-            });
-        }
-
         private static Assembly LoadAssembly(string[] consoleArgs)
         {
+            Assembly assembly = null;
             string filepath;
-            Console.WriteLine(consoleArgs.Length);
             if (consoleArgs.Length < 1)
             {
                 Console.WriteLine("Insert Filepath:");
@@ -47,15 +28,15 @@ namespace Prototype
 
             try
             {
-                return Assembly.LoadFrom(filepath);
+                assembly = Assembly.LoadFrom(filepath);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine($"{e.Message}");
                 Console.WriteLine("Usage: Prototype.exe /{Filepath/}");
-                Console.WriteLine("Using default!");
-                return Assembly.LoadFrom("TestingAssemblies/Newtonsoft.Json.dll");
+                Environment.Exit(-1);
             }
+
+            return assembly;
         }
 
         static async Task Main(string[] args)
@@ -64,10 +45,13 @@ namespace Prototype
             sw.Start();
             Assembly assembly = LoadAssembly(args);
 
-            var problems = new Dictionary<string, ICollection<ProblemReport>>();
-            var complexities = new Dictionary<string, double>();
+            var evaluator = new EvaluationBase(
+                new ApiScopeEvaluator(),
+                new MethodScopeEvaluator(),
+                new TypeScopeEvaluator()
+            );
 
-            EvaluateAssembly(assembly, problems, complexities);
+            var (problems, complexities) =  evaluator.EvaluateAssembly(assembly);
 
             if (!Directory.Exists("results")) Directory.CreateDirectory("results");
             await Task.WhenAll(
