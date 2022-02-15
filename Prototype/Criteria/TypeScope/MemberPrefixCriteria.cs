@@ -22,7 +22,7 @@ namespace Prototype.Criteria.TypeScope
         private const int FlagOk = 10;
 
         private readonly Type type;
-        private readonly Dictionary<string, ICollection<MemberInfo>> memberPrefixes = new();
+        private readonly IDictionary<string, ICollection<MemberInfo>> memberPrefixes = new Dictionary<string, ICollection<MemberInfo>>();
 
         public MemberPrefixCriteria(Type type)
         {

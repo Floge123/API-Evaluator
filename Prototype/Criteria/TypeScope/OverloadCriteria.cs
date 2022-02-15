@@ -16,7 +16,7 @@ namespace Prototype.Criteria.TypeScope
         private const int FlagOk = 10;
 
         private readonly Type type;
-        private readonly Dictionary<string, int> overloads = new();
+        private readonly IDictionary<string, int> overloads = new Dictionary<string, int>();
 
         public OverloadCriteria(Type type)
         {

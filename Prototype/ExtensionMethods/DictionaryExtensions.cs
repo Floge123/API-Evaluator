@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Prototype.ExtensionMethods
 {
-    public static class DictionaryExtensions
+    public static class IDictionaryExtensions
     {
-        public static void CreateOrIncrease<K>(this Dictionary<K, double> dic, K key, double value)
+        public static void CreateOrIncrease<K>(this IDictionary<K, double> dic, K key, double value)
         {
             lock (dic)
             {
@@ -21,7 +21,7 @@ namespace Prototype.ExtensionMethods
             }
         }
 
-        public static void CreateOrIncrement<K>(this Dictionary<K, int> dic, K key)
+        public static void CreateOrIncrement<K>(this IDictionary<K, int> dic, K key)
         {
             lock (dic)
             {
@@ -36,7 +36,7 @@ namespace Prototype.ExtensionMethods
             }
         }
 
-        public static void Print<K, V>(this Dictionary<K, V> dic)
+        public static void Print<K, V>(this IDictionary<K, V> dic)
         {
             foreach (var entry in dic)
             {
@@ -44,7 +44,7 @@ namespace Prototype.ExtensionMethods
             }
         }
 
-        public static void AddOrCreate<K, V>(this Dictionary<K, ICollection<V>> dic, K key, V value)
+        public static void AddOrCreate<K, V>(this IDictionary<K, ICollection<V>> dic, K key, V value)
         {
             if (value is null) return;
             lock (dic)
@@ -60,7 +60,7 @@ namespace Prototype.ExtensionMethods
             }
         }
 
-        public static void AddOrCreate<K, V>(this Dictionary<K, ICollection<V>> dic, K key, ICollection<V> value)
+        public static void AddOrCreate<K, V>(this IDictionary<K, ICollection<V>> dic, K key, ICollection<V> value)
         {
             if (value is null) return;
             lock (dic)

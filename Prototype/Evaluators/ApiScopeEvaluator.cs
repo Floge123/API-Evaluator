@@ -1,5 +1,6 @@
 ﻿using Prototype.ExtensionMethods;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,22 +15,19 @@ namespace Prototype.Evaluators
     public class ApiScopeEvaluator : IEvaluator
     {
         private Type[] _assemblyTypes;
-        private Dictionary<string, ICollection<ProblemReport>> _problems;
-        private Dictionary<string, double> _complexities;
-        private Dictionary<string, IList<Task<double>>> _complexityTasks;
-        private Dictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
+        private readonly Dictionary<string, ICollection<ProblemReport>> _problems = new();
+        private readonly Dictionary<string, double> _complexities = new();
+        private IDictionary<string, IList<Task<double>>> _complexityTasks;
+        private IDictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
         private readonly IList<string> _criteria = new List<string> {nameof(TypeCountCriteria), nameof(NamespaceTypeCountCriteria), nameof(NamespaceCountCriteria)};
 
-        public async Task Evaluate(Assembly assembly,
-            Dictionary<string, ICollection<ProblemReport>> problems,
-            Dictionary<string, double> complexities)
+        public async Task<(Dictionary<string, ICollection<ProblemReport>> problems, Dictionary<string, double> complexities)> Evaluate(Assembly assembly)
         {
             _assemblyTypes = assembly.GetExportedTypes();
-            this._problems = problems ?? throw new ArgumentNullException(nameof(problems));
-            this._complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
             //call all private evaluations
             Console.WriteLine("Starting Api Scope");
             await EvaluateCounts();
+            return (_problems, _complexities);
         }
         
         private void InitTaskDictionaries()

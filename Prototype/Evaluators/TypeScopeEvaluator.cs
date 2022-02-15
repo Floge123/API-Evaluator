@@ -1,5 +1,6 @@
 ﻿using Prototype.Criteria;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,29 +15,18 @@ namespace Prototype.Evaluators
     public class TypeScopeEvaluator : IEvaluator
     {
         private Type[] _assemblyTypes;
-        private Dictionary<string, ICollection<ProblemReport>> _problems;
-        private Dictionary<string, double> _complexities;
-        private Dictionary<string, IList<Task<double>>> _complexityTasks;
-        private Dictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
+        private readonly Dictionary<string, ICollection<ProblemReport>> _problems = new();
+        private readonly Dictionary<string, double> _complexities = new();
+        private IDictionary<string, IList<Task<double>>> _complexityTasks;
+        private IDictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
         private readonly IList<string> _criteria = new List<string> {nameof(MemberCountCriteria), nameof(OverloadCriteria), nameof(MemberPrefixCriteria)};
 
-        public async Task Evaluate(Assembly assembly,
-            Dictionary<string, ICollection<ProblemReport>> problems,
-            Dictionary<string, double> complexities)
+        public async Task<(Dictionary<string, ICollection<ProblemReport>> problems, Dictionary<string, double> complexities)> Evaluate(Assembly assembly)
         {
             _assemblyTypes = assembly.GetExportedTypes(); //get all public types of assembly
-            this._problems = problems ?? throw new ArgumentNullException(nameof(problems));
-            this._complexities = complexities ?? throw new ArgumentNullException(nameof(complexities));
             Console.WriteLine("Starting Type Scope");
-            try
-            {
-                await EvaluateMember();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            
+            await EvaluateMember();
+            return (_problems, _complexities);
         }
 
         private void InitTaskDictionaries()

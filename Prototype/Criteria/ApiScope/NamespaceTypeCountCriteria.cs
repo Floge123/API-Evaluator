@@ -9,7 +9,7 @@ namespace Prototype.Criteria.ApiScope
 	public class NamespaceTypeCountCriteria : ICriteria
 	{
 		private const int FlagOk = 30;
-		private Dictionary<string, ICollection<Type>> namespaceDictionary = new();
+		private readonly IDictionary<string, ICollection<Type>> namespaceDictionary = new Dictionary<string, ICollection<Type>>();
 
 		public NamespaceTypeCountCriteria(IEnumerable<Type> types)
 		{
