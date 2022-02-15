@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.Criteria.TypeScope;
+using Prototype.DataStructures;
 using Prototype.ExtensionMethods;
 
 namespace Prototype.Evaluators

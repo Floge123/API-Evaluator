@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Prototype.Criteria.MethodScope;
 using Prototype.Criteria.TypeScope;
+using Prototype.DataStructures;
 
 namespace Prototype.Evaluators
 {

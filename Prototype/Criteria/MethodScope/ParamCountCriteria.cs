@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Prototype.DataStructures;
 using Prototype.ExtensionMethods;
 
 namespace Prototype.Criteria.MethodScope

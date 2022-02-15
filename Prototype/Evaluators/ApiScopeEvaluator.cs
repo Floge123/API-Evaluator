@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.Criteria;
 using Prototype.Criteria.ApiScope;
+using Prototype.DataStructures;
 
 namespace Prototype.Evaluators
 {

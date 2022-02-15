@@ -1,4 +1,4 @@
-﻿namespace Prototype
+﻿namespace Prototype.DataStructures
 {
     public class ProblemReport
     {
