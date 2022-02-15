@@ -19,7 +19,7 @@ namespace Prototype.Evaluators
         private Dictionary<string, double> _complexities;
         private Dictionary<string, IList<Task<double>>> _complexityTasks;
         private Dictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
-        private readonly IList<string> _criteria = new List<string> {ParamCountCriteria.Name, ReturnValueCriteria.Name};
+        private readonly IList<string> _criteria = new List<string> {nameof(ParamCountCriteria), nameof(ReturnValueCriteria)};
 
         public async Task Evaluate(Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
@@ -61,8 +61,8 @@ namespace Prototype.Evaluators
             {
                 foreach (var method in type.GetMethods())
                 {
-                    EvaluateCriteria(method, ParamCountCriteria.Name, method => new ParamCountCriteria(method));
-                    EvaluateCriteria(method, ReturnValueCriteria.Name, method => new ReturnValueCriteria(method));
+                    EvaluateCriteria(method, nameof(ParamCountCriteria), method => new ParamCountCriteria(method));
+                    EvaluateCriteria(method, nameof(ReturnValueCriteria), method => new ReturnValueCriteria(method));
                 }
             }
         }

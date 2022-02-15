@@ -19,8 +19,6 @@ namespace Prototype.Criteria.MethodScope
         private const int ComplexityIncrease = 7;
         private readonly MethodInfo methodInfo;
 
-        public static string Name => "Complexity of Method Return Values";
-
         public ReturnValueCriteria(MethodInfo methodInfo)
         {
             this.methodInfo = methodInfo;

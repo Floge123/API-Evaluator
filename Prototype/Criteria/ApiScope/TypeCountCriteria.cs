@@ -9,8 +9,6 @@ namespace Prototype.Criteria.ApiScope
 	{
 		private const int FlagOk = 20;
 		private readonly int typeCount;
-		
-		public static string Name => "Complexity of Type Count";
 
 		public TypeCountCriteria(IEnumerable<Type> types)
 		{
@@ -32,7 +30,7 @@ namespace Prototype.Criteria.ApiScope
 					problems.Add(new ProblemReport(
 						"", "",
 						$"Assembly has {typeCount} types.",
-						Name, "This is just for info, no fix needed.")
+						nameof(TypeCountCriteria), "This is just for info, no fix needed.")
 					);
 				}
 

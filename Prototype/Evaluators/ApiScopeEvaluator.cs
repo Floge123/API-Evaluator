@@ -17,7 +17,7 @@ namespace Prototype.Evaluators
         private Dictionary<string, double> _complexities;
         private Dictionary<string, IList<Task<double>>> _complexityTasks;
         private Dictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
-        private readonly IList<string> _criteria = new List<string> {TypeCountCriteria.Name, NamespaceTypeCountCriteria.Name, NamespaceCountCriteria.Name};
+        private readonly IList<string> _criteria = new List<string> {nameof(TypeCountCriteria), nameof(NamespaceTypeCountCriteria), nameof(NamespaceCountCriteria)};
 
         public async Task Evaluate(Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
@@ -56,11 +56,11 @@ namespace Prototype.Evaluators
         
         private void DoEvaluation()
         {
-            EvaluateCriteria(_assemblyTypes, TypeCountCriteria.Name, 
+            EvaluateCriteria(_assemblyTypes, nameof(TypeCountCriteria), 
                 assemblyTypes => new TypeCountCriteria(assemblyTypes));
-            EvaluateCriteria(_assemblyTypes, NamespaceTypeCountCriteria.Name, 
+            EvaluateCriteria(_assemblyTypes, nameof(NamespaceTypeCountCriteria), 
                 assemblyTypes => new NamespaceTypeCountCriteria(assemblyTypes));
-            EvaluateCriteria(_assemblyTypes, NamespaceCountCriteria.Name,
+            EvaluateCriteria(_assemblyTypes, nameof(NamespaceCountCriteria),
                 assemblyTypes => new NamespaceCountCriteria(assemblyTypes));
         }
         

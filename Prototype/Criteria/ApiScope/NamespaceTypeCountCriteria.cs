@@ -10,8 +10,6 @@ namespace Prototype.Criteria.ApiScope
 		private const int FlagOk = 30;
 		private Dictionary<string, ICollection<Type>> namespaceDictionary = new();
 
-		public static string Name => "Complexity of Type Count per Namespace";
-
 		public NamespaceTypeCountCriteria(IEnumerable<Type> types)
 		{
 			foreach (var type in types)
@@ -46,7 +44,7 @@ namespace Prototype.Criteria.ApiScope
 						problems.Add(new ProblemReport(
 							"", ns,
 							$"Namespace has {t.Count} types. Maximum set is 30.",
-							Name, "Reduce amount of types per namespace by refactoring into more namespaces " +
+							nameof(NamespaceTypeCountCriteria), "Reduce amount of types per namespace by refactoring into more namespaces " +
 							      "or removing not needed types.")
 						);
 					}

@@ -9,9 +9,6 @@ namespace Prototype.Criteria.ApiScope
 		private const int FlagOk = 30;
 		private const double ComplexityExponent = 1.5;
 		private int count;
-		
-		public static string Name => "Complexity of Namespace Count";
-		
 
 		public NamespaceCountCriteria(ICollection<Type> types)
 		{
@@ -39,7 +36,7 @@ namespace Prototype.Criteria.ApiScope
 					problems.Add(new ProblemReport(
 						"", "",
 						$"Assembly has {count} namespaces. Maximum set to 30.",
-						Name, "Reduce the number of namespaces used in the assembly. If possible, merge " +
+						nameof(NamespaceCountCriteria), "Reduce the number of namespaces used in the assembly. If possible, merge " +
 						      "similar namespaces."));
 				}
 

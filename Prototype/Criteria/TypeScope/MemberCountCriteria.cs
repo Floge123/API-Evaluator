@@ -21,8 +21,6 @@ namespace Prototype.Criteria.TypeScope
         private readonly Type type;
         private readonly int memberCount;
 
-        public static string Name => "Complexity of Member Count";
-
         public MemberCountCriteria(Type type)
         {
             this.type = type;
@@ -54,8 +52,8 @@ namespace Prototype.Criteria.TypeScope
                     problemReports.Add(new ProblemReport(
                         type.Name, "",
                         $"Type has more than {FlagOk} members. Has {memberCount}.",
-                        Name, "Reduce number of public members. Too many choices are" +
-                              "overwhelming, when looking for correct member."
+                        nameof(MemberCountCriteria), "Reduce number of public members. Too many choices are " +
+                              "overwhelming when looking for correct member."
                     ));
                 }
 

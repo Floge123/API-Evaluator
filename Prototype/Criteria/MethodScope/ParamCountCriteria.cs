@@ -19,8 +19,6 @@ namespace Prototype.Criteria.MethodScope
         private readonly MethodInfo methodInfo;
         private readonly int paramCount;
 
-        public static string Name => "Complexity of Method Parameter Counts";
-
         public ParamCountCriteria(MethodInfo methodInfo)
         {
             this.methodInfo = methodInfo;
@@ -55,7 +53,7 @@ namespace Prototype.Criteria.MethodScope
                     problemReports.Add(new ProblemReport(
                         methodInfo.DeclaringType?.Name, methodInfo.Name,
                         $"Method has more than {FlagOk} parameters. Has {paramCount}.",
-                        Name, "Reduce number of parameters or provide overload with less parameters."
+                        nameof(ParamCountCriteria), "Reduce number of parameters or provide overload with less parameters."
                     ));
                 }
 

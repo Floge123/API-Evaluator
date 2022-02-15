@@ -23,8 +23,6 @@ namespace Prototype.Criteria.TypeScope
         private readonly Type type;
         private readonly Dictionary<string, ICollection<MemberInfo>> memberPrefixes = new();
 
-        public static string Name => "Complexity of Member prefix";
-
         public MemberPrefixCriteria(Type type)
         {
             this.type = type;
@@ -71,7 +69,7 @@ namespace Prototype.Criteria.TypeScope
                         problemReports.Add(new ProblemReport(
                             type.Name, $"Prefix {key} -> {value.ValuesToString()}",
                             $"Type has more than {FlagOk} members with prefix {key}. Has {value.Count}.",
-                            Name, "Rename members or remove some to reduce count of members with same prefix."
+                            nameof(MemberPrefixCriteria), "Rename members or remove some to reduce count of members with same prefix."
                         ));
                     }
                 }

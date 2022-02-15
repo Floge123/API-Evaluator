@@ -17,8 +17,6 @@ namespace Prototype.Criteria.TypeScope
         private readonly Type type;
         private readonly Dictionary<string, int> overloads = new();
 
-        public static string Name => "Complexity of Method Overloads";
-
         public OverloadCriteria(Type type)
         {
             this.type = type;
@@ -61,7 +59,7 @@ namespace Prototype.Criteria.TypeScope
                         problems.Add(new ProblemReport(
                             type.Name, key,
                             $"Method has {value} overloads.",
-                            Name, "This is just for info, no fix needed.")
+                            nameof(OverloadCriteria), "This is just for info, no fix needed.")
                         );
                     }
                 }

@@ -17,7 +17,7 @@ namespace Prototype.Evaluators
         private Dictionary<string, double> _complexities;
         private Dictionary<string, IList<Task<double>>> _complexityTasks;
         private Dictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
-        private readonly IList<string> _criteria = new List<string> {MemberCountCriteria.Name, OverloadCriteria.Name, MemberPrefixCriteria.Name};
+        private readonly IList<string> _criteria = new List<string> {nameof(MemberCountCriteria), nameof(OverloadCriteria), nameof(MemberPrefixCriteria)};
 
         public async Task Evaluate(Assembly assembly,
             Dictionary<string, ICollection<ProblemReport>> problems,
@@ -64,9 +64,9 @@ namespace Prototype.Evaluators
         {
             foreach(var type in _assemblyTypes)
             {
-                EvaluateCriteria(type, MemberCountCriteria.Name, type => new MemberCountCriteria(type));
-                EvaluateCriteria(type, MemberPrefixCriteria.Name, type => new MemberPrefixCriteria(type));
-                EvaluateCriteria(type, OverloadCriteria.Name, type => new OverloadCriteria(type));
+                EvaluateCriteria(type, nameof(MemberCountCriteria), type => new MemberCountCriteria(type));
+                EvaluateCriteria(type, nameof(MemberPrefixCriteria), type => new MemberPrefixCriteria(type));
+                EvaluateCriteria(type, nameof(OverloadCriteria), type => new OverloadCriteria(type));
             }
         }
         
