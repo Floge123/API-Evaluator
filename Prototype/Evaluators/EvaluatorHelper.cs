@@ -45,6 +45,13 @@ namespace Prototype.Evaluators
 			return (cTasks, pTasks);
 		}
 		
+		/// <summary>
+		/// Runs the provided <see cref="ICriteria"/> with the provided data.
+		/// </summary>
+		/// <param name="criteria">List of <see cref="ICriteria"/> types to be executed.</param>
+		/// <param name="data">Data on which the criteria should be executed</param>
+		/// <typeparam name="TD">Type of the provided data</typeparam>
+		/// <returns><see cref="Tuple{T1, T2}"/> where the first item is the complexity dictionary and the second item is the problem dictionary.</returns>
 		public static (IDictionary<string, IList<Task<double>>>,
 			IDictionary<string, IList<Task<ICollection<ProblemReport>>>>) RunEvaluation<TD>(IEnumerable<Type> criteria, TD data)
 		{
