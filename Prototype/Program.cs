@@ -69,7 +69,7 @@ namespace Prototype
                 )
             );
             sw.Stop();
-            Console.WriteLine($"Successfully finished evaluation in {sw.ElapsedMilliseconds}ms.\n See results in [bin\\Debug\\net5.0\\results]");
+            Console.WriteLine($"Successfully finished evaluation in {sw.ElapsedMilliseconds}ms.\n See results in [bin\\Release\\net5.0\\results]");
         }
     }
 }
