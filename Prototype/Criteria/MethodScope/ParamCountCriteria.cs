@@ -17,13 +17,13 @@ namespace Prototype.Criteria.MethodScope
         /// A method with more than 4 parameters is considered a problem.
         /// </summary>
         private const int FlagOk = 4;
-        private readonly MethodInfo methodInfo;
-        private readonly int paramCount;
+        private readonly MethodInfo _methodInfo;
+        private readonly int _paramCount;
 
         public ParamCountCriteria(MethodInfo methodInfo)
         {
-            this.methodInfo = methodInfo;
-            this.paramCount = methodInfo.GetParameters().Length;
+            _methodInfo = methodInfo;
+            _paramCount = methodInfo.GetParameters().Length;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Prototype.Criteria.MethodScope
             return await Task.Run(() =>
             {
                 double complexity = 0;
-                for (var i = 1; i <= paramCount; i++)
+                for (var i = 1; i <= _paramCount; i++)
                 {
                     complexity += 2.5 * i;
                 }
@@ -49,11 +49,11 @@ namespace Prototype.Criteria.MethodScope
             return await Task.Run(() =>
             {
                 var problemReports = new List<ProblemReport>();
-                if (paramCount > FlagOk)
+                if (_paramCount > FlagOk)
                 {
                     problemReports.Add(new ProblemReport(
-                        methodInfo.DeclaringType?.Name, methodInfo.Name,
-                        $"Method has more than {FlagOk} parameters. Has {paramCount}.",
+                        _methodInfo.DeclaringType?.Name, _methodInfo.Name,
+                        $"Method has more than {FlagOk} parameters. Has {_paramCount}.",
                         nameof(ParamCountCriteria), "Reduce number of parameters or provide overload with less parameters."
                     ));
                 }

@@ -9,13 +9,13 @@ namespace Prototype.Criteria.ApiScope
 	public class NamespaceTypeCountCriteria : ICriteria
 	{
 		private const int FlagOk = 30;
-		private readonly IDictionary<string, ICollection<Type>> namespaceDictionary = new Dictionary<string, ICollection<Type>>();
+		private readonly IDictionary<string, ICollection<Type>> _namespaceDictionary = new Dictionary<string, ICollection<Type>>();
 
 		public NamespaceTypeCountCriteria(IEnumerable<Type> types)
 		{
 			foreach (var type in types)
 			{
-				namespaceDictionary.AddOrCreate(type.Namespace, type);
+				_namespaceDictionary.AddOrCreate(type.Namespace, type);
 			}
 		}
 		
@@ -24,12 +24,12 @@ namespace Prototype.Criteria.ApiScope
 			return await Task.Run(() =>
 			{
 				var complexity = 0.0;
-				foreach (var (_, t) in namespaceDictionary)
+				foreach (var (_, t) in _namespaceDictionary)
 				{
 					complexity += t.Count;
 				}
 
-				return complexity / namespaceDictionary.Count;
+				return complexity / _namespaceDictionary.Count;
 			});
 		}
 
@@ -38,7 +38,7 @@ namespace Prototype.Criteria.ApiScope
 			return await Task.Run(() =>
 			{
 				var problems = new List<ProblemReport>();
-				foreach (var (ns, t) in namespaceDictionary)
+				foreach (var (ns, t) in _namespaceDictionary)
 				{
 					if (t.Count > FlagOk)
 					{

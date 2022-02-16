@@ -21,12 +21,12 @@ namespace Prototype.Criteria.TypeScope
         /// </summary>
         private const int FlagOk = 10;
 
-        private readonly Type type;
-        private readonly IDictionary<string, ICollection<MemberInfo>> memberPrefixes = new Dictionary<string, ICollection<MemberInfo>>();
+        private readonly Type _type;
+        private readonly IDictionary<string, ICollection<MemberInfo>> _memberPrefixes = new Dictionary<string, ICollection<MemberInfo>>();
 
         public MemberPrefixCriteria(Type type)
         {
-            this.type = type;
+            _type = type;
             var members = (from t in type.GetMembers()
                 where !(t.Name.StartsWith("get_") 
                         || t.Name.StartsWith("set_") 
@@ -35,14 +35,14 @@ namespace Prototype.Criteria.TypeScope
                 select t).ToList();
             foreach (var member in members.Where(member => member.Name.Length > 3))
             {
-                memberPrefixes.AddOrCreate(member.Name[..3], member);
+                _memberPrefixes.AddOrCreate(member.Name[..3], member);
             }
-            foreach (var (key, value) in memberPrefixes)
+            foreach (var (key, value) in _memberPrefixes)
             {
                 if (value.Count == 1)
                 {
                     //if only one member with prefix found, ignore prefix
-                    memberPrefixes.Remove(key);
+                    _memberPrefixes.Remove(key);
                 }
             }
         }
@@ -55,7 +55,7 @@ namespace Prototype.Criteria.TypeScope
         /// <returns>complexity of member prefixes</returns>
         public async Task<double> CalculateComplexity()
         {
-            return await Task.Run(() => memberPrefixes.Sum(members => members.Value.Count / 2.0));
+            return await Task.Run(() => _memberPrefixes.Sum(members => members.Value.Count / 2.0));
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
@@ -63,12 +63,12 @@ namespace Prototype.Criteria.TypeScope
             return await Task.Run(() =>
             {
                 var problemReports = new List<ProblemReport>();
-                foreach (var (key, value) in memberPrefixes)
+                foreach (var (key, value) in _memberPrefixes)
                 {
                     if (value.Count > FlagOk)
                     {
                         problemReports.Add(new ProblemReport(
-                            type.Name, $"Prefix {key} -> {value.ValuesToString()}",
+                            _type.Name, $"Prefix {key} -> {value.ValuesToString()}",
                             $"Type has more than {FlagOk} members with prefix {key}. Has {value.Count}.",
                             nameof(MemberPrefixCriteria), "Rename members or remove some to reduce count of members with same prefix."
                         ));

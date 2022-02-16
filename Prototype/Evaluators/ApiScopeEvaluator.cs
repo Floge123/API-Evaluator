@@ -1,9 +1,6 @@
-﻿using Prototype.ExtensionMethods;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.Criteria;
@@ -19,35 +16,26 @@ namespace Prototype.Evaluators
         private readonly Dictionary<string, double> _complexities = new();
         private IDictionary<string, IList<Task<double>>> _complexityTasks;
         private IDictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
-        private readonly IList<string> _criteria = new List<string> {nameof(TypeCountCriteria), nameof(NamespaceTypeCountCriteria), nameof(NamespaceCountCriteria)};
+        private readonly IList<Type> _criteria = new List<Type> {typeof(TypeCountCriteria), typeof(NamespaceTypeCountCriteria), typeof(NamespaceCountCriteria)};
 
         public async Task<(Dictionary<string, ICollection<ProblemReport>> problems, Dictionary<string, double> complexities)> Evaluate(Assembly assembly)
         {
             _assemblyTypes = assembly.GetExportedTypes();
-            //call all private evaluations
             Console.WriteLine("Starting Api Scope");
-            await EvaluateCounts();
+            await EvaluateApiScope();
             return (_problems, _complexities);
         }
-        
-        private void InitTaskDictionaries()
-        {
-            this._complexityTasks = new Dictionary<string, IList<Task<double>>>();
-            this._problemTasks = new Dictionary<string, IList<Task<ICollection<ProblemReport>>>>();
-            foreach (var c in _criteria)
-            {
-                this._complexityTasks.Add(c, new List<Task<double>>());
-                this._problemTasks.Add(c, new List<Task<ICollection<ProblemReport>>>());
-            }
-        }
 
-        private async Task EvaluateCounts()
+        private async Task EvaluateApiScope()
         {
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             sw.Start();
-            InitTaskDictionaries();
+            (_complexityTasks, _problemTasks) = EvaluatorHelper.CreateTaskDictionaries(_criteria);
             DoEvaluation();
-            await Task.WhenAll(ProcessComplexities(), ProcessProblems());
+            await Task.WhenAll(
+                EvaluatorHelper.ProcessComplexities(_complexityTasks, _complexities, v => v),
+                EvaluatorHelper.ProcessProblems(_problemTasks, _problems)
+            );
             sw.Stop();
             
             Console.WriteLine($"Finished Api Scope in {sw.ElapsedMilliseconds}ms");
@@ -55,40 +43,12 @@ namespace Prototype.Evaluators
         
         private void DoEvaluation()
         {
-            EvaluateCriteria(_assemblyTypes, nameof(TypeCountCriteria), 
-                assemblyTypes => new TypeCountCriteria(assemblyTypes));
-            EvaluateCriteria(_assemblyTypes, nameof(NamespaceTypeCountCriteria), 
-                assemblyTypes => new NamespaceTypeCountCriteria(assemblyTypes));
-            EvaluateCriteria(_assemblyTypes, nameof(NamespaceCountCriteria),
-                assemblyTypes => new NamespaceCountCriteria(assemblyTypes));
-        }
-        
-        private void EvaluateCriteria<TV>(Type[] type, string name, Func<Type[], TV> ctor) where TV : ICriteria
-        {
-            ICriteria criteria = ctor.Invoke(type);
-            _complexityTasks[name].Add(criteria.CalculateComplexity());
-            _problemTasks[name].Add(criteria.GenerateProblemReports());
-        }
-        
-        private async Task ProcessComplexities()
-        {
-            foreach (var (criteria, complexityList) in _complexityTasks)
+            foreach (var c in _criteria)
             {
-                await Task.WhenAll(complexityList);
-                var value = complexityList.Sum(complexity => complexity.Result);
-                _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
-            }
-        }
-        
-        private async Task ProcessProblems()
-        {
-            foreach (var (criteria, problemList) in _problemTasks)
-            {
-                await Task.WhenAll(problemList);
-                foreach (var pTask in problemList)
-                {
-                    _problems.AddOrCreate(criteria, pTask.Result);
-                }
+                var ctor = c.GetConstructor(new [] {_assemblyTypes.GetType()});
+                var (cTasks, pTasks) = EvaluatorHelper.EvaluateCriteria(_assemblyTypes, t => (ICriteria)ctor?.Invoke(new object[] {t}));
+                _complexityTasks[c.Name].Add(cTasks);
+                _problemTasks[c.Name].Add(pTasks);
             }
         }
     }

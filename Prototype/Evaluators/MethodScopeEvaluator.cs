@@ -1,55 +1,45 @@
 ﻿using Prototype.Criteria;
-using Prototype.ExtensionMethods;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Prototype.Criteria.MethodScope;
-using Prototype.Criteria.TypeScope;
 using Prototype.DataStructures;
 
 namespace Prototype.Evaluators
 {
     public class MethodScopeEvaluator : IEvaluator
     {
+        private readonly IList<Type> _criteria = new List<Type> {typeof(ParamCountCriteria), typeof(ReturnValueCriteria)};
+        
         private Type[] _assemblyTypes;
-        private readonly Dictionary<string, ICollection<ProblemReport>> _problems = new();
-        private readonly Dictionary<string, double> _complexities = new();
         private IDictionary<string, IList<Task<double>>> _complexityTasks;
         private IDictionary<string, IList<Task<ICollection<ProblemReport>>>> _problemTasks;
-        private readonly IList<string> _criteria = new List<string> {nameof(ParamCountCriteria), nameof(ReturnValueCriteria)};
-
-        public async Task<(Dictionary<string, ICollection<ProblemReport>> problems, Dictionary<string, double> complexities)> Evaluate(Assembly assembly)
+        
+        private readonly Dictionary<string, ICollection<ProblemReport>> _problems = new();
+        private readonly Dictionary<string, double> _complexities = new();
+        
+        public async Task<(Dictionary<string, ICollection<ProblemReport>> problems, 
+                           Dictionary<string, double> complexities)> Evaluate(Assembly assembly)
         {
             _assemblyTypes = assembly.GetExportedTypes();
-            //call all private evaluations
             Console.WriteLine("Starting Method Scope");
-            await EvaluateMethods();
+            await EvaluateMethodScope();
             return (_problems, _complexities);
         }
-        
-        private void InitTaskDictionaries()
-        {
-            this._complexityTasks = new Dictionary<string, IList<Task<double>>>();
-            this._problemTasks = new Dictionary<string, IList<Task<ICollection<ProblemReport>>>>();
-            foreach (var c in _criteria)
-            {
-                this._complexityTasks.Add(c, new List<Task<double>>());
-                this._problemTasks.Add(c, new List<Task<ICollection<ProblemReport>>>());
-            }
-        }
 
-        private async Task EvaluateMethods()
+        private async Task EvaluateMethodScope()
         {
-            Stopwatch sw = new Stopwatch();
+           var sw = new Stopwatch();
            sw.Start();
-           InitTaskDictionaries();
+           (_complexityTasks, _problemTasks) = EvaluatorHelper.CreateTaskDictionaries(_criteria);
            DoEvaluation();
-           await Task.WhenAll(ProcessComplexities(), ProcessProblems());
+           await Task.WhenAll(
+               EvaluatorHelper.ProcessComplexities(_complexityTasks, _complexities, v => v / _assemblyTypes.Sum(type => type.GetMethods().Length)),
+               EvaluatorHelper.ProcessProblems(_problemTasks, _problems)
+            );
            sw.Stop();
            Console.WriteLine($"Finished Method Scope in {sw.ElapsedMilliseconds}ms");
         }
@@ -60,43 +50,14 @@ namespace Prototype.Evaluators
             {
                 foreach (var method in type.GetMethods())
                 {
-                    EvaluateCriteria(method, nameof(ParamCountCriteria), method => new ParamCountCriteria(method));
-                    EvaluateCriteria(method, nameof(ReturnValueCriteria), method => new ReturnValueCriteria(method));
+                    foreach (var c in _criteria)
+                    {
+                        var ctor = c.GetConstructor(new [] {method.GetType()});
+                        var (cTasks, pTasks) = EvaluatorHelper.EvaluateCriteria(method, m => (ICriteria)ctor?.Invoke(new object[] {m}));
+                        _complexityTasks[c.Name].Add(cTasks);
+                        _problemTasks[c.Name].Add(pTasks);
+                    }
                 }
-            }
-        }
-        
-        private void EvaluateCriteria<TV>(MethodInfo method, string name, Func<MethodInfo, TV> ctor) where TV : ICriteria
-        {
-            ICriteria criteria = ctor.Invoke(method);
-            _complexityTasks[name].Add(criteria.CalculateComplexity());
-            _problemTasks[name].Add(criteria.GenerateProblemReports());
-        }
-        
-        private async Task ProcessComplexities()
-        {
-            foreach (var (criteria, complexityList) in _complexityTasks)
-            {
-                await Task.WhenAll(complexityList);
-                var value = complexityList.Sum(complexity => complexity.Result);
-                
-                //parameter count complexity and return value complexity per method
-                value /= _assemblyTypes.Sum(type => type.GetMethods().Length);
-
-                _complexities.CreateOrIncrease(criteria, Math.Round(value, 4));
-            }
-        }
-        
-        private async Task ProcessProblems()
-        {
-            foreach (var (criteria, problemList) in _problemTasks)
-            {
-                await Task.WhenAll(problemList);
-                foreach (var pTask in problemList)
-                {
-                    _problems.AddOrCreate(criteria, pTask.Result);
-                }
-                
             }
         }
     }

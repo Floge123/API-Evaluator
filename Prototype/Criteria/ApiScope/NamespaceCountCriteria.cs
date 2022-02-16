@@ -9,7 +9,7 @@ namespace Prototype.Criteria.ApiScope
 	{
 		private const int FlagOk = 30;
 		private const double ComplexityExponent = 1.5;
-		private int count;
+		private readonly int _count;
 
 		public NamespaceCountCriteria(ICollection<Type> types)
 		{
@@ -19,12 +19,12 @@ namespace Prototype.Criteria.ApiScope
 				namespaces.Add(type.Namespace);
 			}
 
-			count = namespaces.Count;
+			_count = namespaces.Count;
 		}
 		
 		public async Task<double> CalculateComplexity()
 		{
-			return await Task.Run(() => Math.Pow(count, ComplexityExponent));
+			return await Task.Run(() => Math.Pow(_count, ComplexityExponent));
 		}
 
 		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
@@ -32,11 +32,11 @@ namespace Prototype.Criteria.ApiScope
 			return await Task.Run(() =>
 			{
 				var problems = new List<ProblemReport>();
-				if (count > FlagOk)
+				if (_count > FlagOk)
 				{
 					problems.Add(new ProblemReport(
 						"", "",
-						$"Assembly has {count} namespaces. Maximum set to 30.",
+						$"Assembly has {_count} namespaces. Maximum set to 30.",
 						nameof(NamespaceCountCriteria), "Reduce the number of namespaces used in the assembly. If possible, merge " +
 						      "similar namespaces."));
 				}

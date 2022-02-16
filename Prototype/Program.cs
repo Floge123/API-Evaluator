@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,13 +10,13 @@ using Prototype.Evaluators;
 
 namespace Prototype
 {
-    class Program
+    internal static class Program
     {
-        private static Assembly LoadAssembly(string[] consoleArgs)
+        private static Assembly LoadAssembly(IReadOnlyList<string> consoleArgs)
         {
             Assembly assembly = null;
             string filepath;
-            if (consoleArgs.Length < 1)
+            if (consoleArgs.Count < 1)
             {
                 Console.WriteLine("Insert Filepath:");
                 filepath = Console.ReadLine();
@@ -38,7 +39,7 @@ namespace Prototype
             return assembly;
         }
 
-        static async Task Main(string[] args)
+        private static async Task Main(string[] args)
         {
             var sw = new Stopwatch();
             sw.Start();

@@ -15,15 +15,15 @@ namespace Prototype.Criteria.TypeScope
     {
         private const int FlagOk = 10;
 
-        private readonly Type type;
-        private readonly IDictionary<string, int> overloads = new Dictionary<string, int>();
+        private readonly Type _type;
+        private readonly IDictionary<string, int> _overloads = new Dictionary<string, int>();
 
         public OverloadCriteria(Type type)
         {
-            this.type = type;
+            _type = type;
             foreach (var method in type.GetMethods())
             {
-                overloads.CreateOrIncrement(method.Name);
+                _overloads.CreateOrIncrement(method.Name);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Prototype.Criteria.TypeScope
             return await Task.Run(() =>
             {
                 var complexity = 0.0;
-                foreach (var (_, value) in overloads)
+                foreach (var (_, value) in _overloads)
                 {
                     if (value > 1)
                     {
@@ -53,12 +53,12 @@ namespace Prototype.Criteria.TypeScope
             return await Task.Run(() =>
             {
                 var problems = new List<ProblemReport>();
-                foreach (var (key, value) in overloads)
+                foreach (var (key, value) in _overloads)
                 {
                     if (value > FlagOk)
                     {
                         problems.Add(new ProblemReport(
-                            type.Name, key,
+                            _type.Name, key,
                             $"Method has {value} overloads.",
                             nameof(OverloadCriteria), "This is just for info, no fix needed.")
                         );

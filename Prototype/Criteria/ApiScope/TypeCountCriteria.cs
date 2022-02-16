@@ -9,16 +9,16 @@ namespace Prototype.Criteria.ApiScope
 	public class TypeCountCriteria : ICriteria
 	{
 		private const int FlagOk = 20;
-		private readonly int typeCount;
+		private readonly int _typeCount;
 
 		public TypeCountCriteria(IEnumerable<Type> types)
 		{
-			typeCount = types.Count();
+			_typeCount = types.Count();
 		}
 		
 		public async Task<double> CalculateComplexity()
 		{
-			return await Task.FromResult(typeCount);
+			return await Task.FromResult(_typeCount);
 		}
 
 		public async Task<ICollection<ProblemReport>> GenerateProblemReports()
@@ -26,11 +26,11 @@ namespace Prototype.Criteria.ApiScope
 			return await Task.Run(() =>
 			{
 				var problems = new List<ProblemReport>();
-				if (typeCount > FlagOk)
+				if (_typeCount > FlagOk)
 				{
 					problems.Add(new ProblemReport(
 						"", "",
-						$"Assembly has {typeCount} types.",
+						$"Assembly has {_typeCount} types.",
 						nameof(TypeCountCriteria), "This is just for info, no fix needed.")
 					);
 				}

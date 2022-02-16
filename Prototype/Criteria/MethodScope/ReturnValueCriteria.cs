@@ -18,11 +18,11 @@ namespace Prototype.Criteria.MethodScope
         /// We assume 87.5% of return values are used, therefore use complexity of 7.
         /// </summary>
         private const int ComplexityIncrease = 7;
-        private readonly MethodInfo methodInfo;
+        private readonly MethodInfo _methodInfo;
 
         public ReturnValueCriteria(MethodInfo methodInfo)
         {
-            this.methodInfo = methodInfo;
+            _methodInfo = methodInfo;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Prototype.Criteria.MethodScope
         /// <returns>complexity of return values</returns>
         public async Task<double> CalculateComplexity()
         {
-            return await Task.FromResult(methodInfo.ReturnType != typeof(void) ? ComplexityIncrease : 0);
+            return await Task.FromResult(_methodInfo.ReturnType != typeof(void) ? ComplexityIncrease : 0);
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()

@@ -19,13 +19,13 @@ namespace Prototype.Criteria.TypeScope
         /// </summary>
         private const int FlagOk = 43;
 
-        private readonly Type type;
-        private readonly int memberCount;
+        private readonly Type _type;
+        private readonly int _memberCount;
 
         public MemberCountCriteria(Type type)
         {
-            this.type = type;
-            memberCount = type.GetMembers()
+            _type = type;
+            _memberCount = type.GetMembers()
                 .Where(m => !m.Name.StartsWith("get_") &&
                             !m.Name.StartsWith("set_")) //ignore getter and setter for properties
                 .Select(m => m.Name)
@@ -40,7 +40,7 @@ namespace Prototype.Criteria.TypeScope
         /// <returns>complexity of the member count</returns>
         public async Task<double> CalculateComplexity()
         {
-            return await Task.Run(() => memberCount / 3.0 / 6.0);
+            return await Task.Run(() => _memberCount / 3.0 / 6.0);
         }
 
         public async Task<ICollection<ProblemReport>> GenerateProblemReports()
@@ -48,11 +48,11 @@ namespace Prototype.Criteria.TypeScope
             return await Task.Run(() =>
             {
                 var problemReports = new List<ProblemReport>();
-                if (memberCount > FlagOk)
+                if (_memberCount > FlagOk)
                 {
                     problemReports.Add(new ProblemReport(
-                        type.Name, "",
-                        $"Type has more than {FlagOk} members. Has {memberCount}.",
+                        _type.Name, "",
+                        $"Type has more than {FlagOk} members. Has {_memberCount}.",
                         nameof(MemberCountCriteria), "Reduce number of public members. Too many choices are " +
                               "overwhelming when looking for correct member."
                     ));
