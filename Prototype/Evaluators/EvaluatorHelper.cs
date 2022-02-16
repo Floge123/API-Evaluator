@@ -55,7 +55,15 @@ namespace Prototype.Evaluators
 		public static (IDictionary<string, IList<Task<double>>>,
 			IDictionary<string, IList<Task<ICollection<ProblemReport>>>>) RunEvaluation<TD>(IEnumerable<Type> criteria, TD data)
 		{
-			var enumerable = criteria as Type[] ?? criteria.ToArray();
+			var types = criteria as Type[] ?? criteria.ToArray();
+			if (types.Any(cr => cr.FindInterfaces(
+				(t, c) => t.ToString() == c?.ToString(),
+				"Prototype.Criteria.ICriteria").Length == 0))
+			{
+				throw new ArgumentException("Provided type is not an ICriteria");
+			}
+			
+			var enumerable = criteria as Type[] ?? types.ToArray();
 			var (complexityTasks, problemTasks) = CreateTaskDictionaries(enumerable);
 			foreach (var c in enumerable)
 			{
