@@ -4,8 +4,27 @@ using System.Linq;
 
 namespace Prototype.ExtensionMethods
 {
-    public static class IDictionaryExtensions
+    public static class DictionaryExtensions
     {
+        public static void Merge<TKey, TValue>(this IDictionary<TKey, IList<TValue>> dic, IDictionary<TKey, IList<TValue>> other)
+        {
+            foreach (var (key, value) in other)
+            {
+                if (value is null) return;
+                lock (dic)
+                {
+                    if (dic.ContainsKey(key))
+                    {
+                        dic[key].AddAll(value);
+                    }
+                    else
+                    {
+                        dic.Add(key, value);
+                    }
+                }
+            }
+        }
+        
         public static void CreateOrIncrease<K>(this IDictionary<K, double> dic, K key, double value)
         {
             lock (dic)
@@ -33,14 +52,6 @@ namespace Prototype.ExtensionMethods
                 {
                     dic.Add(key, 1);
                 }
-            }
-        }
-
-        public static void Print<K, V>(this IDictionary<K, V> dic)
-        {
-            foreach (var entry in dic)
-            {
-                Console.WriteLine($"{entry.Key} : {entry.Value}");
             }
         }
 

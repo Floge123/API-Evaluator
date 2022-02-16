@@ -45,6 +45,22 @@ namespace Prototype.Evaluators
 			return (cTasks, pTasks);
 		}
 		
+		public static (IDictionary<string, IList<Task<double>>>,
+			IDictionary<string, IList<Task<ICollection<ProblemReport>>>>) RunEvaluation<TD>(IEnumerable<Type> criteria, TD data)
+		{
+			var enumerable = criteria as Type[] ?? criteria.ToArray();
+			var (complexityTasks, problemTasks) = CreateTaskDictionaries(enumerable);
+			foreach (var c in enumerable)
+			{
+				var ctor = c.GetConstructor(new [] {data.GetType()});
+				var (cTasks, pTasks) = EvaluateCriteria(data, t => (ICriteria)ctor?.Invoke(new object[] {t}));
+				complexityTasks[c.Name].Add(cTasks);
+				problemTasks[c.Name].Add(pTasks);
+			}
+
+			return (complexityTasks, problemTasks);
+		}
+		
 		/// <summary>
 		/// Goes through all <see cref="Task"/> provided, normalizes the result according to provided lambda and adds the result to the result dictionary.
 		/// </summary>
@@ -80,5 +96,7 @@ namespace Prototype.Evaluators
 				}
 			}
 		}
+		
+		
 	}
 }

@@ -1,11 +1,12 @@
-﻿using Prototype.Criteria;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.Criteria.TypeScope;
 using Prototype.DataStructures;
+using Prototype.ExtensionMethods;
 
 namespace Prototype.Evaluators
 {
@@ -44,13 +45,9 @@ namespace Prototype.Evaluators
         {
             foreach(var type in _assemblyTypes)
             {
-                foreach (var c in _criteria)
-                {
-                    var ctor = c.GetConstructor(new [] {typeof(Type)});
-                    var (cTasks, pTasks) = EvaluatorHelper.EvaluateCriteria(type, t => (ICriteria)ctor?.Invoke(new object[] {t}));
-                    _complexityTasks[c.Name].Add(cTasks);
-                    _problemTasks[c.Name].Add(pTasks);
-                }
+                var (cTasks, pTasks) = EvaluatorHelper.RunEvaluation(_criteria, type);
+                _complexityTasks.Merge(cTasks);
+                _problemTasks.Merge(pTasks);
             }
         }
     }

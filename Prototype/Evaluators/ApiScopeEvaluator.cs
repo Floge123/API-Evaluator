@@ -30,8 +30,7 @@ namespace Prototype.Evaluators
         {
             var sw = new Stopwatch();
             sw.Start();
-            (_complexityTasks, _problemTasks) = EvaluatorHelper.CreateTaskDictionaries(_criteria);
-            DoEvaluation();
+            (_complexityTasks, _problemTasks) = EvaluatorHelper.RunEvaluation(_criteria, _assemblyTypes);
             await Task.WhenAll(
                 EvaluatorHelper.ProcessComplexities(_complexityTasks, _complexities, v => v),
                 EvaluatorHelper.ProcessProblems(_problemTasks, _problems)
@@ -39,17 +38,6 @@ namespace Prototype.Evaluators
             sw.Stop();
             
             Console.WriteLine($"Finished Api Scope in {sw.ElapsedMilliseconds}ms");
-        }
-        
-        private void DoEvaluation()
-        {
-            foreach (var c in _criteria)
-            {
-                var ctor = c.GetConstructor(new [] {_assemblyTypes.GetType()});
-                var (cTasks, pTasks) = EvaluatorHelper.EvaluateCriteria(_assemblyTypes, t => (ICriteria)ctor?.Invoke(new object[] {t}));
-                _complexityTasks[c.Name].Add(cTasks);
-                _problemTasks[c.Name].Add(pTasks);
-            }
         }
     }
 }

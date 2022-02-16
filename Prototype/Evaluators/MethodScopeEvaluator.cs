@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Prototype.Criteria.MethodScope;
 using Prototype.DataStructures;
+using Prototype.ExtensionMethods;
 
 namespace Prototype.Evaluators
 {
@@ -50,13 +51,9 @@ namespace Prototype.Evaluators
             {
                 foreach (var method in type.GetMethods())
                 {
-                    foreach (var c in _criteria)
-                    {
-                        var ctor = c.GetConstructor(new [] {method.GetType()});
-                        var (cTasks, pTasks) = EvaluatorHelper.EvaluateCriteria(method, m => (ICriteria)ctor?.Invoke(new object[] {m}));
-                        _complexityTasks[c.Name].Add(cTasks);
-                        _problemTasks[c.Name].Add(pTasks);
-                    }
+                    var (cTasks, pTasks) = EvaluatorHelper.RunEvaluation(_criteria, method);
+                    _complexityTasks.Merge(cTasks);
+                    _problemTasks.Merge(pTasks);
                 }
             }
         }
